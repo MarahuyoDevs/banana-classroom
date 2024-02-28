@@ -2,10 +2,10 @@ from starlette.testclient import TestClient
 import boto3
 from jose import jwt
 import os
-from banana_classroom.services.user_api.user_service.databases.NOSQL.userNOSQL import (
+from banana_classroom.services.user_service.databases.NOSQL.userNOSQL import (
     User,
 )
-from banana_classroom.services.user_api.user_service.app import service
+from banana_classroom.services.user_service.app import service
 
 
 os.environ["DYNTASTIC_HOST"] = "http://localhost:8000"
