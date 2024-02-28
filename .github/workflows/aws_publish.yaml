@@ -1,0 +1,58 @@
+name: Deploy AWS Lambda
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Install Python 3.12
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.12
+      
+      - name: Install pipx
+        run: |
+          python3.12 -m pip install --upgrade pip
+          python3.12 -m pip install pipx --user
+      
+      - name: Install poetry
+        run: |
+          python3.12 -m pipx install poetry    
+      
+      - name: Install dependencies
+        run: |
+          poetry install
+      
+      - name: Test with pytest
+        run: |
+          poetry run pytest -s
+
+      - name: Build ASGI app
+        run: |
+          python3.12 -m pip install -t dist/lambda .
+
+      - name: Zip the lambda
+        run: |
+          cd dist/lambda
+          zip -x '*.pyc' -r ../lambda.zip .
+      
+      - name: Deploy AWS Lambda
+        uses: appleboy/lambda-action@v0.1.9
+        with:
+          aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws_region: ap-southeast-1 
+          function_name: sample-starlette
+          zip_file: dist/lambda.zip
+          memory_size: 128
+          timeout: 10
+          handler: sample_aws.handler.handler
+          role: ${{ secrets.AWS_LAMBDA_ROLE_PUBLISHER }}
+          runtime: python3.12
