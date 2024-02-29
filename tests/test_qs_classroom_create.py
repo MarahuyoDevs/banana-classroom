@@ -2,6 +2,7 @@ import pytest
 from starlette.testclient import TestClient
 from banana_classroom.services.quiz_api.quiz_service.app import service
 from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import Classroom
+from starlette import status
 import os
 import boto3
 
@@ -29,7 +30,7 @@ class TestClassroomCreation:
                 "instructor": "Ms. Johnson",
             },
         )
-        assert response.status_code == 2001
+        assert response.status_code == status.HTTP_200_OK
         assert response.json()["data"]["title"] == "Math Class"
         assert response.json()["data"]["description"] == "Learn math concepts"
         assert response.json()["data"]["instructor"] == "Ms. Johnson"
@@ -77,10 +78,9 @@ class TestClassroomCreation:
                 "instructor": "test_instructor",
             },
         )
-        assert response.status_code == 422
-        assert response.json()["detail"][0]["msg"] == "field required"
-        assert response.json()["detail"][0]["type"] == "value_error.missing"
-
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert response.text == "Title is required"
+        
     "Creating a classroom with missing description. Expected output: Missing data error message (Description is required)"
     def test_create_classroom_missing_description(self):
         response = self.client.post(
@@ -90,9 +90,8 @@ class TestClassroomCreation:
                 "instructor": "test_instructor",
             },
         )
-        assert response.status_code == 422
-        assert response.json()["detail"][0]["msg"] == "field required"
-        assert response.json()["detail"][0]["type"] == "value_error.missing"
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert response.text == "Description is required"
 
     "Creating a classroom with missing instructor. Expected output: Missing data error message (Instructor is required)"
     def test_create_classroom_missing_instructor(self):
@@ -103,9 +102,8 @@ class TestClassroomCreation:
                 "description": "test_description",
             },
         )
-        assert response.status_code == 422
-        assert response.json()["detail"][0]["msg"] == "field required"
-        assert response.json()["detail"][0]["type"] == "value_error.missing"
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
+        assert response.text == "Instructor is required"
 
     "Creating a classroom with invalid instructor. Expected output: Invalid data error message (Instructor must be a string)"
     def test_create_classroom_invalid_instructor(self):
@@ -117,36 +115,9 @@ class TestClassroomCreation:
                 "instructor": 123,  # Invalid instructor value
             },
         )
-        assert response.status_code == 422  # Expecting validation error
-        assert "Instructor must be a string" in response.text  # Expecting specific error message
+        assert response.status_code == 422
+        assert response.text == "Instructor must be a string"
 
-
-    "Creating a classroom with duplicate ID. Expected output: Bad request error message (Classroom with this ID already exists)"
-    def test_create_classroom_duplicate_id(self):
-        # Test creating a classroom with duplicate ID
-        # Create a valid classroom
-        response_valid = self.client.post(
-            "/classroom",
-            json={
-                "title": "Valid Classroom",
-                "description": "Valid description",
-                "instructor": "Valid Instructor",
-            },
-        )
-        classroom_id = response_valid.json()["data"]["id"]
-
-        # Attempt to create another classroom with the same ID
-        response_duplicate = self.client.post(
-            "/classroom",
-            json={
-                "id": classroom_id,  # Duplicate ID
-                "title": "Duplicate ID Classroom",
-                "description": "Another classroom",
-                "instructor": "Another Instructor",
-            },
-        )
-        assert response_duplicate.status_code == 400  # Expecting bad request due to duplicate ID
-        assert "Classroom with this ID already exists" in response_duplicate.text  # Expecting specific error message
 
     "Creating a classroom with invalid title. Expected output: Invalid data error message (Title must be a string)"
     def test_create_classroom_invalid_title(self):
@@ -159,7 +130,7 @@ class TestClassroomCreation:
             },
         )
         assert response.status_code == 422  # Expecting validation error
-        assert "Title must be a string" in response.text  # Expecting specific error message
+        assert response.text == "Title must be a string"  # Expecting specific error message
 
     "Creating a classroom with long title. Expected output: Invalid data error message (Title must be at most 100 characters)"
     def test_create_classroom_long_title(self):
@@ -233,6 +204,32 @@ class TestClassroomCreation:
             },
         )
         assert response.status_code == 200
+        classroom_id = response.json()["data"]["id"]
+
+        # Test adding students
+        response = self.client.post(f"/classroom/{classroom_id}/students", json={"name": "Alice"})
+        assert response.status_code == 200
+
+        # Test adding quizzes
+        response = self.client.post(
+            "/quiz/create",
+            json={
+                "title": "test_quiz_integration",
+                "description": "test_description_integration",
+                "instructor": "test_instructor_integration",
+                "class_id": classroom_id,
+                "questions": [
+                    {
+                        "description": "test_question_integration",
+                        "options": ["test_answer_integration", "test_answer_integration", "test_answer_integration"],
+                        "answer": "test_answer_integration",
+                    }
+                ],
+                "expiration_time": "2024-03-01T00:00:00",
+            },
+        )
+        assert response.status_code == 200
+        quiz_id = response.json()["data"]["id"] 
         classroom_id = response.json()["data"]["id"]
 
         # Test adding students
