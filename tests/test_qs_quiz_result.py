@@ -1,8 +1,7 @@
 from starlette.testclient import TestClient
 from banana_classroom.services.quiz_api.quiz_service.app import service
-from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import (
-    Classroom,
-)
+from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import Classroom
+from starlette import status
 import os
 import boto3
 
@@ -24,36 +23,32 @@ class TestViewQuizResults:
 
     client = TestClient(service)
 
-    def test_view_quiz_results_after_submission(self):
-        response = self.client.get(
-            f"/quiz/results?class-id={classroom['id']}&quiz-id={quiz['id']}",
-        )
-        assert response.status_code, 200
-
+    "Viewing quiz results after submission. Expected output: 200 OK"
     def test_view_quiz_results_after_submission_failing_score(self):
         response = self.client.get(
             f"/quiz/results?class-id={classroom['id']}&quiz-id={quiz['id']}",
         )
-        assert response.status_code, 200
+        assert response.status_code == status.HTTP_200_OK
 
+    "Viewing quiz results before submission. Expected output: 200 OK"
     def test_view_quiz_results_before_submission(self):
         response = self.client.get(
             f"/quiz/results?class-id={classroom['id']}&quiz-id={quiz['id']}",
         )
-        assert response.status_code, 200
+        assert response.status_code == status.HTTP_401_UNAUTHORIZED
+        assert response.json()["message"] == "Cannot view quiz results before submission"
 
+    "Viewing quiz results for another student. Expected output: 403 Forbidden"
     def test_access_private_feedback(self):
         response = self.client.get(
             "/quiz/results?class-id={}&quiz-id={}&student-id={}".format(
                 classroom["id"], quiz["id"], "another_student_id"
             )
         )
-        assert response.status_code, 403
-        assert (
-            response.json()["message"]
-            == "Access denied or redirection to own quiz results"
-        )
-
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+        assert response.json()["message"] == "Access denied or redirection to own quiz results"
+        
+    "Tampering with quiz results. Expected output: 403 Forbidden"
     def test_quiz_result_tampering(self):
         response = self.client.put(
             "/quiz/results",
@@ -64,11 +59,11 @@ class TestViewQuizResults:
                 "score": 1000,  # Attempt to modify the score
             },
         )
-        assert response.status_code == 400  # Or whatever appropriate status code
+        assert response.status_code == status.HTTP_403_FORBIDDEN
         assert response.json()["message"] == "Quiz result tampering detected"
 
+    "Viewing large number of quiz results. Expected output: 200 OK"
     def test_large_number_of_questions(self):
-        # Assuming a quiz with large number of questions is already created
         # Simulate accessing quiz results for that quiz
         response = self.client.get(
             "/quiz/results?class-id={}&quiz-id={}&student-id={}".format(
@@ -77,5 +72,5 @@ class TestViewQuizResults:
         )
         assert response.status_code == 200
         assert response.json().get("results")
-        assert len(response.json()["results"]) > 0
+        assert len(response.json()["results"]) > 1
 

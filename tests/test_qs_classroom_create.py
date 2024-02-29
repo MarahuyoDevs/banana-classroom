@@ -46,7 +46,7 @@ class TestClassroomCreation:
                 "students": []
             },
         )
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         assert response.json()["data"]["title"] == "English Class"
         assert response.json()["data"]["description"] == "Improve language skills"
         assert response.json()["data"]["instructor"] == "Mr. Lee"
@@ -63,7 +63,7 @@ class TestClassroomCreation:
                 "quizzes": []
             },
         )
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         assert response.json()["data"]["title"] == "Science Class"
         assert response.json()["data"]["description"] == "Explore the wonders of science"
         assert response.json()["data"]["instructor"] == "Dr. Smith"
@@ -115,7 +115,7 @@ class TestClassroomCreation:
                 "instructor": 123,  # Invalid instructor value
             },
         )
-        assert response.status_code == 422
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert response.text == "Instructor must be a string"
 
 
@@ -129,7 +129,7 @@ class TestClassroomCreation:
                 "instructor": "Valid Instructor",
             },
         )
-        assert response.status_code == 422  # Expecting validation error
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert response.text == "Title must be a string"  # Expecting specific error message
 
     "Creating a classroom with long title. Expected output: Invalid data error message (Title must be at most 60 characters)"
@@ -143,7 +143,7 @@ class TestClassroomCreation:
                 "instructor": "Valid Instructor",
             },
         )
-        assert response.status_code == 422  # Expecting validation error
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert "ensure this value has at most 60 characters" in response.text  # Expecting specific error message
 
     "Creating a classroom with long description. Expected output: Invalid data error message (Description must be at most 1000 characters)"
@@ -157,7 +157,7 @@ class TestClassroomCreation:
                 "instructor": "Valid Instructor",
             },
         )
-        assert response.status_code == 422  # Expecting validation error
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert "ensure this value has at most 1000 characters" in response.text  # Expecting specific error message
 
     "Creating a classroom with long instructor. Expected output: Invalid data error message (Instructor must be at most 30 characters)"
@@ -171,7 +171,7 @@ class TestClassroomCreation:
                 "instructor": "A" * 31,  # Instructor exceeds maximum length (100 characters)
             },
         )
-        assert response.status_code == 422  # Expecting validation error
+        assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert "ensure this value has at most 30 characters" in response.text  # Expecting specific error message
 
     def test_performance_create_multiple_classrooms(self):
@@ -192,16 +192,18 @@ class TestClassroomCreation:
         # Assert that the execution time is within a reasonable timeframe (e.g., 10 seconds)
         assert execution_time < 10, f"Execution time {execution_time} seconds exceeds expected timeframe"
 
-    #"Creating a classroom without proper authorization. Expected output: Restriction of classroom creation or appropriate error"
-    #def test_security_unauthorized_classroom_creation(self):
-    #    # Input: Attempt to create a classroom without proper authorization
-    #    unauthorized_data = {...}  # Data for unauthorized classroom creation
-    #    response = self.client.post("/classroom", json=unauthorized_data)
-    #    # Expected Output: Restriction of classroom creation or appropriate error
-    #    assert response.status_code != 200  # Expecting classroom creation to fail
-
 
     """
+    "Creating a classroom without proper authorization. Expected output: Restriction of classroom creation or appropriate error"
+    def test_security_unauthorized_classroom_creation(self):
+        # Input: Attempt to create a classroom without proper authorization
+        unauthorized_data = {...}  # Data for unauthorized classroom creation
+        response = self.client.post("/classroom", json=unauthorized_data)
+        # Expected Output: Restriction of classroom creation or appropriate error
+        assert response.status_code != 200  # Expecting classroom creation to fail
+
+
+    
     "Integration with related functionalities"
     def test_integration_with_related_functionalities(self):
         # Input: Create a classroom

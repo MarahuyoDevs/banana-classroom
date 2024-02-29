@@ -1,6 +1,7 @@
 from starlette.testclient import TestClient
 from banana_classroom.services.quiz_api.quiz_service.app import service
 from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import Classroom
+from starlette import status
 import os
 import boto3
 
@@ -30,7 +31,7 @@ class TestJoinClassroom():
         response = self.client.get(
             f"/classroom/join?class-id={valid_classroom_id}&student-id={valid_student_id}",
         )
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         assert "success" in response.json()["status"]
         assert valid_student_id in response.json()["data"]["students"]
 
@@ -39,7 +40,7 @@ class TestJoinClassroom():
         response = self.client.get(
             f"/classroom/join?class-id={invalid_classroom_id}&student-id={valid_student_id}",
         )
-        assert response.status_code == 404
+        assert response.status_code == status.HTTP_404_NOT_FOUND
         assert "error" in response.json()["status"]
         assert "Invalid link" in response.json()["message"]
                 
@@ -57,7 +58,7 @@ class TestJoinClassroom():
                 ],
             },
         )
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         assert response.json()["score"] == len([x for x in response.json()["questions"] if x])
     
     "Get a list of incomplete quizzes. Expected outcome: A list containing the IDs and titles of incomplete quizzes is returned."
@@ -69,7 +70,7 @@ class TestJoinClassroom():
             {"id": "quiz_id_1", "title": "Incomplete Quiz 1"},
             {"id": "quiz_id_2", "title": "Incomplete Quiz 2"}
         ]
-        assert response.status_code == 200
+        assert response.status_code == status.HTTP_200_OK
         assert response.json() == expected_output
 
     "Student finished a quiz. Expected outcome: The quiz ID is added to the student's completed_quizzes list. An error message is displayed if the quiz is already marked as completed."
