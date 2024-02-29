@@ -22,7 +22,7 @@ valid_student_id = "student"
 invalid_classroom_id = "invalid"
 invalid_student_id = "invalid"
 
-class TestJoinClassroom(unittest.TestCase):
+class TestJoinClassroom():
 
     client = TestClient(service)
 
@@ -31,7 +31,7 @@ class TestJoinClassroom(unittest.TestCase):
         response = self.client.get(
             f"/classroom/join?class-id={valid_classroom_id}&student-id={valid_student_id}",
         )
-        self.assertEqual(response.status_code, 200)
+        self.assert(response.status_code, 200)
         self.assertIn("success", response.json()["status"])
         self.assertIn(valid_student_id, response.json()["data"]["students"])
 
