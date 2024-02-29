@@ -1,4 +1,3 @@
-import unittest
 from starlette.testclient import TestClient
 from banana_classroom.services.quiz_api.quiz_service.app import service
 from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import (
@@ -80,6 +79,3 @@ class TestViewQuizResults:
         assert response.json().get("results")
         assert len(response.json()["results"]) > 0
 
-
-if __name__ == "__main__":
-    unittest.main()

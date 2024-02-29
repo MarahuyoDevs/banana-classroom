@@ -1,4 +1,3 @@
-import unittest
 from starlette.testclient import TestClient
 from banana_classroom.services.quiz_api.quiz_service.app import service
 from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import Classroom
@@ -6,10 +5,10 @@ import os
 import boto3
 
 os.environ["DYNTASTIC_HOST"] = "http://localhost:8000"
-os.environ["DYNTASTIC_REGION"] = "us-east-1"
+os.environ["DYNTASTIC_REGION"] = "ap-southeast-1"
 
 dynamodb = boto3.resource(
-    "dynamodb", region_name="us-east-1", endpoint_url="http://localhost:8000"
+    "dynamodb", region_name="ap-southeast-1", endpoint_url="http://localhost:8000"
 )
 
 if "classroom" not in dynamodb.meta.client.list_tables()["TableNames"]:

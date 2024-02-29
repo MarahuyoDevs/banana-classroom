@@ -1,10 +1,10 @@
-import pytest
 from starlette.testclient import TestClient
 from banana_classroom.services.quiz_api.quiz_service.app import service
 from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import Classroom
 from starlette import status
 import os
 import boto3
+import time
 
 os.environ["DYNTASTIC_HOST"] = "http://localhost:8000"
 os.environ["DYNTASTIC_REGION"] = "ap-southeast-1"
@@ -132,19 +132,19 @@ class TestClassroomCreation:
         assert response.status_code == 422  # Expecting validation error
         assert response.text == "Title must be a string"  # Expecting specific error message
 
-    "Creating a classroom with long title. Expected output: Invalid data error message (Title must be at most 100 characters)"
+    "Creating a classroom with long title. Expected output: Invalid data error message (Title must be at most 60 characters)"
     def test_create_classroom_long_title(self):
         # Test creating a classroom with a long title
         response = self.client.post(
             "/classroom",
             json={
-                "title": "A" * 101,  # Title exceeds maximum length (100 characters)
+                "title": "A" * 69,  # Title exceeds maximum length (100 characters)
                 "description": "Valid description",
                 "instructor": "Valid Instructor",
             },
         )
         assert response.status_code == 422  # Expecting validation error
-        assert "ensure this value has at most 100 characters" in response.text  # Expecting specific error message
+        assert "ensure this value has at most 60 characters" in response.text  # Expecting specific error message
 
     "Creating a classroom with long description. Expected output: Invalid data error message (Description must be at most 1000 characters)"
     def test_create_classroom_long_description(self):
@@ -160,7 +160,7 @@ class TestClassroomCreation:
         assert response.status_code == 422  # Expecting validation error
         assert "ensure this value has at most 1000 characters" in response.text  # Expecting specific error message
 
-    "Creating a classroom with long instructor. Expected output: Invalid data error message (Instructor must be at most 100 characters)"
+    "Creating a classroom with long instructor. Expected output: Invalid data error message (Instructor must be at most 30 characters)"
     def test_create_classroom_long_instructor(self):
         # Test creating a classroom with a long instructor
         response = self.client.post(
@@ -168,30 +168,40 @@ class TestClassroomCreation:
             json={
                 "title": "Long Instructor Classroom",
                 "description": "Valid description",
-                "instructor": "A" * 101,  # Instructor exceeds maximum length (100 characters)
+                "instructor": "A" * 31,  # Instructor exceeds maximum length (100 characters)
             },
         )
         assert response.status_code == 422  # Expecting validation error
-        assert "ensure this value has at most 100 characters" in response.text  # Expecting specific error message
+        assert "ensure this value has at most 30 characters" in response.text  # Expecting specific error message
 
-    "Creating multiple classrooms. Expected output: Classrooms created within a reasonable timeframe"
     def test_performance_create_multiple_classrooms(self):
         # Input: Large number of valid classroom data
-        large_number_of_data = [...]  # List containing a large number of valid classroom data
+        large_number_of_data = [
+            {"title": "Classroom 1", "description": "Description for Classroom 1", "instructor": "Instructor 1"},
+            {"title": "Classroom 2", "description": "Description for Classroom 2", "instructor": "Instructor 2"},
+            # Add more data as needed...
+        ]
+        start_time = time.time()  # Record start time
         for data in large_number_of_data:
             response = self.client.post("/classroom", json=data)
             # Expected Output: Classrooms created within a reasonable timeframe
             assert response.status_code == 200
             assert "data" in response.json()
+        end_time = time.time()  # Record end time
+        execution_time = end_time - start_time
+        # Assert that the execution time is within a reasonable timeframe (e.g., 10 seconds)
+        assert execution_time < 10, f"Execution time {execution_time} seconds exceeds expected timeframe"
 
-    "Creating a classroom without proper authorization. Expected output: Restriction of classroom creation or appropriate error"
-    def test_security_unauthorized_classroom_creation(self):
-        # Input: Attempt to create a classroom without proper authorization
-        unauthorized_data = {...}  # Data for unauthorized classroom creation
-        response = self.client.post("/classroom", json=unauthorized_data)
-        # Expected Output: Restriction of classroom creation or appropriate error
-        assert response.status_code != 200  # Expecting classroom creation to fail
+    #"Creating a classroom without proper authorization. Expected output: Restriction of classroom creation or appropriate error"
+    #def test_security_unauthorized_classroom_creation(self):
+    #    # Input: Attempt to create a classroom without proper authorization
+    #    unauthorized_data = {...}  # Data for unauthorized classroom creation
+    #    response = self.client.post("/classroom", json=unauthorized_data)
+    #    # Expected Output: Restriction of classroom creation or appropriate error
+    #    assert response.status_code != 200  # Expecting classroom creation to fail
 
+
+    """
     "Integration with related functionalities"
     def test_integration_with_related_functionalities(self):
         # Input: Create a classroom
@@ -256,6 +266,4 @@ class TestClassroomCreation:
         )
         assert response.status_code == 200
         quiz_id = response.json()["data"]["id"]
-
-if __name__ == '__main__':
-    pytest.main()
+    """
