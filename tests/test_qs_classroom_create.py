@@ -123,7 +123,7 @@ class TestClassroomCreation(unittest.TestCase):
     "Creating a classroom with duplicate ID. Expected output: Bad request error message (Classroom with this ID already exists)"
     def test_create_classroom_duplicate_id(self):
         # Test creating a classroom with duplicate ID
-        # First, create a valid classroom
+        # Create a valid classroom
         response_valid = self.client.post(
             "/classroom",
             json={
@@ -134,7 +134,7 @@ class TestClassroomCreation(unittest.TestCase):
         )
         classroom_id = response_valid.json()["data"]["id"]
 
-        # Now, attempt to create another classroom with the same ID
+        # Attempt to create another classroom with the same ID
         response_duplicate = self.client.post(
             "/classroom",
             json={
@@ -211,7 +211,6 @@ class TestClassroomCreation(unittest.TestCase):
             # Expected Output: Classrooms created within a reasonable timeframe
             self.assertEqual(response.status_code, 200)
             self.assertIn("data", response.json())
-            # Additional assertions as needed for response data
 
     "Creating a classroom without proper authorization. Expected output: Restriction of classroom creation or appropriate error"
     def test_security_unauthorized_classroom_creation(self):
@@ -219,8 +218,7 @@ class TestClassroomCreation(unittest.TestCase):
         unauthorized_data = {...}  # Data for unauthorized classroom creation
         response = self.client.post("/classroom", json=unauthorized_data)
         # Expected Output: Restriction of classroom creation or appropriate error
-        self.assertNotEqual(response.status_code, 200)  # Assuming unauthorized requests return a non-200 status code
-        # Additional assertions as needed for response data
+        self.assertNotEqual(response.status_code, 200)  # Expecting classroom creation to fail
 
     "Integration with related functionalities"
     def test_integration_with_related_functionalities(self):
@@ -237,13 +235,10 @@ class TestClassroomCreation(unittest.TestCase):
         classroom_id = response.json()["data"]["id"]
 
         # Test adding students
-        # Example: Add a student to the classroom
         response = self.client.post(f"/classroom/{classroom_id}/students", json={"name": "Alice"})
         self.assertEqual(response.status_code, 200)
-        # Additional assertions as needed for response data
 
         # Test adding quizzes
-        # Example: Create a quiz for the classroom
         response = self.client.post(
             "/quiz/create",
             json={
