@@ -1,4 +1,4 @@
-import datetime
+from datetime import time 
 from typing import Optional
 from dyntastic import Dyntastic
 from pydantic import BaseModel, Field
@@ -41,10 +41,10 @@ class Quiz(BaseModel):
     instructor: str
     questions: list["Question"]
     show_result: bool = False
-    expiration_time: str
+    expiration_time: time
 
 
-class Question(BaseModel):  # stream pa gago
+class Question(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid4()))
     description: str
     options: Optional[list[str]] = None  # optional choice
