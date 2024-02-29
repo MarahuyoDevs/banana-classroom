@@ -1,5 +1,4 @@
 import unittest
-from datetime import datetime
 from starlette.testclient import TestClient
 from banana_classroom.services.quiz_api.quiz_service.app import service
 from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import Classroom
@@ -18,6 +17,10 @@ if "classroom" not in dynamodb.meta.client.list_tables()["TableNames"]:
 
 classroom = {}
 quiz = {}
+valid_classroom_id = "classroom"
+valid_student_id = "student"
+invalid_classroom_id = "invalid"
+invalid_student_id = "invalid"
 
 class TestJoinClassroom(unittest.TestCase):
 
