@@ -15,7 +15,7 @@ dynamodb = boto3.resource(
 if "classroom" not in dynamodb.meta.client.list_tables()["TableNames"]:
     Classroom.create_table()
 
-class TestClassroomCreation(pytest.TestCase):
+class TestClassroomCreation:
 
     client = TestClient(service)
 
@@ -29,7 +29,7 @@ class TestClassroomCreation(pytest.TestCase):
                 "instructor": "Ms. Johnson",
             },
         )
-        assert response.status_code == 200
+        assert response.status_code == 2001
         assert response.json()["data"]["title"] == "Math Class"
         assert response.json()["data"]["description"] == "Learn math concepts"
         assert response.json()["data"]["instructor"] == "Ms. Johnson"
