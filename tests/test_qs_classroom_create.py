@@ -1,4 +1,4 @@
-import unittest
+import pytest
 from starlette.testclient import TestClient
 from banana_classroom.services.quiz_api.quiz_service.app import service
 from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import Classroom
@@ -15,7 +15,7 @@ dynamodb = boto3.resource(
 if "classroom" not in dynamodb.meta.client.list_tables()["TableNames"]:
     Classroom.create_table()
 
-class TestClassroomCreation(unittest.TestCase):
+class TestClassroomCreation(pytest.TestCase):
 
     client = TestClient(service)
 
@@ -29,10 +29,10 @@ class TestClassroomCreation(unittest.TestCase):
                 "instructor": "Ms. Johnson",
             },
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["data"]["title"], "Math Class")
-        self.assertEqual(response.json()["data"]["description"], "Learn math concepts")
-        self.assertEqual(response.json()["data"]["instructor"], "Ms. Johnson")
+        assert response.status_code == 200
+        assert response.json()["data"]["title"] == "Math Class"
+        assert response.json()["data"]["description"] == "Learn math concepts"
+        assert response.json()["data"]["instructor"] == "Ms. Johnson"
 
     "Creating a classroom with optional student list. Expected output: Classroom object created with an empty student list"
     def test_create_classroom_with_empty_students_list(self):
@@ -45,11 +45,11 @@ class TestClassroomCreation(unittest.TestCase):
                 "students": []
             },
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["data"]["title"], "English Class")
-        self.assertEqual(response.json()["data"]["description"], "Improve language skills")
-        self.assertEqual(response.json()["data"]["instructor"], "Mr. Lee")
-        self.assertEqual(response.json()["data"]["students"], [])
+        assert response.status_code == 200
+        assert response.json()["data"]["title"] == "English Class"
+        assert response.json()["data"]["description"] == "Improve language skills"
+        assert response.json()["data"]["instructor"] == "Mr. Lee"
+        assert response.json()["data"]["students"] == []
 
     "Creating a classroom with optional quiz list. Expected output: Classroom object created with an empty quiz list"
     def test_create_classroom_with_empty_quiz_list(self):
@@ -62,11 +62,11 @@ class TestClassroomCreation(unittest.TestCase):
                 "quizzes": []
             },
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["data"]["title"], "Science Class")
-        self.assertEqual(response.json()["data"]["description"], "Explore the wonders of science")
-        self.assertEqual(response.json()["data"]["instructor"], "Dr. Smith")
-        self.assertEqual(response.json()["data"]["quizzes"], [])
+        assert response.status_code == 200
+        assert response.json()["data"]["title"] == "Science Class"
+        assert response.json()["data"]["description"] == "Explore the wonders of science"
+        assert response.json()["data"]["instructor"] == "Dr. Smith"
+        assert response.json()["data"]["quizzes"] == []
 
     "Creating a classroom with missing title:. Expected output: Missing data error message (Title is required)"
     def test_create_classroom_missing_title(self):
@@ -77,9 +77,9 @@ class TestClassroomCreation(unittest.TestCase):
                 "instructor": "test_instructor",
             },
         )
-        self.assertEqual(response.status_code, 422)
-        self.assertEqual(response.json()["detail"][0]["msg"], "field required")
-        self.assertEqual(response.json()["detail"][0]["type"], "value_error.missing")
+        assert response.status_code == 422
+        assert response.json()["detail"][0]["msg"] == "field required"
+        assert response.json()["detail"][0]["type"] == "value_error.missing"
 
     "Creating a classroom with missing description. Expected output: Missing data error message (Description is required)"
     def test_create_classroom_missing_description(self):
@@ -90,9 +90,9 @@ class TestClassroomCreation(unittest.TestCase):
                 "instructor": "test_instructor",
             },
         )
-        self.assertEqual(response.status_code, 422)
-        self.assertEqual(response.json()["detail"][0]["msg"], "field required")
-        self.assertEqual(response.json()["detail"][0]["type"], "value_error.missing")
+        assert response.status_code == 422
+        assert response.json()["detail"][0]["msg"] == "field required"
+        assert response.json()["detail"][0]["type"] == "value_error.missing"
 
     "Creating a classroom with missing instructor. Expected output: Missing data error message (Instructor is required)"
     def test_create_classroom_missing_instructor(self):
@@ -103,9 +103,9 @@ class TestClassroomCreation(unittest.TestCase):
                 "description": "test_description",
             },
         )
-        self.assertEqual(response.status_code, 422)
-        self.assertEqual(response.json()["detail"][0]["msg"], "field required")
-        self.assertEqual(response.json()["detail"][0]["type"], "value_error.missing")
+        assert response.status_code == 422
+        assert response.json()["detail"][0]["msg"] == "field required"
+        assert response.json()["detail"][0]["type"] == "value_error.missing"
 
     "Creating a classroom with invalid instructor. Expected output: Invalid data error message (Instructor must be a string)"
     def test_create_classroom_invalid_instructor(self):
@@ -117,8 +117,9 @@ class TestClassroomCreation(unittest.TestCase):
                 "instructor": 123,  # Invalid instructor value
             },
         )
-        self.assertEqual(response.status_code, 422)  # Expecting validation error
-        self.assertIn("Instructor must be a string", response.text)  # Expecting specific error message
+        assert response.status_code == 422  # Expecting validation error
+        assert "Instructor must be a string" in response.text  # Expecting specific error message
+
 
     "Creating a classroom with duplicate ID. Expected output: Bad request error message (Classroom with this ID already exists)"
     def test_create_classroom_duplicate_id(self):
@@ -144,8 +145,8 @@ class TestClassroomCreation(unittest.TestCase):
                 "instructor": "Another Instructor",
             },
         )
-        self.assertEqual(response_duplicate.status_code, 400)  # Expecting bad request due to duplicate ID
-        self.assertIn("Classroom with this ID already exists", response_duplicate.text)  # Expecting specific error message
+        assert response_duplicate.status_code == 400  # Expecting bad request due to duplicate ID
+        assert "Classroom with this ID already exists" in response_duplicate.text  # Expecting specific error message
 
     "Creating a classroom with invalid title. Expected output: Invalid data error message (Title must be a string)"
     def test_create_classroom_invalid_title(self):
@@ -157,8 +158,8 @@ class TestClassroomCreation(unittest.TestCase):
                 "instructor": "Valid Instructor",
             },
         )
-        self.assertEqual(response.status_code, 422)  # Expecting validation error
-        self.assertIn("Title must be a string", response.text)  # Expecting specific error message
+        assert response.status_code == 422  # Expecting validation error
+        assert "Title must be a string" in response.text  # Expecting specific error message
 
     "Creating a classroom with long title. Expected output: Invalid data error message (Title must be at most 100 characters)"
     def test_create_classroom_long_title(self):
@@ -171,8 +172,8 @@ class TestClassroomCreation(unittest.TestCase):
                 "instructor": "Valid Instructor",
             },
         )
-        self.assertEqual(response.status_code, 422)  # Expecting validation error
-        self.assertIn("ensure this value has at most 100 characters", response.text)  # Expecting specific error message
+        assert response.status_code == 422  # Expecting validation error
+        assert "ensure this value has at most 100 characters" in response.text  # Expecting specific error message
 
     "Creating a classroom with long description. Expected output: Invalid data error message (Description must be at most 1000 characters)"
     def test_create_classroom_long_description(self):
@@ -185,8 +186,8 @@ class TestClassroomCreation(unittest.TestCase):
                 "instructor": "Valid Instructor",
             },
         )
-        self.assertEqual(response.status_code, 422)  # Expecting validation error
-        self.assertIn("ensure this value has at most 1000 characters", response.text)  # Expecting specific error message
+        assert response.status_code == 422  # Expecting validation error
+        assert "ensure this value has at most 1000 characters" in response.text  # Expecting specific error message
 
     "Creating a classroom with long instructor. Expected output: Invalid data error message (Instructor must be at most 100 characters)"
     def test_create_classroom_long_instructor(self):
@@ -199,8 +200,8 @@ class TestClassroomCreation(unittest.TestCase):
                 "instructor": "A" * 101,  # Instructor exceeds maximum length (100 characters)
             },
         )
-        self.assertEqual(response.status_code, 422)  # Expecting validation error
-        self.assertIn("ensure this value has at most 100 characters", response.text)  # Expecting specific error message
+        assert response.status_code == 422  # Expecting validation error
+        assert "ensure this value has at most 100 characters" in response.text  # Expecting specific error message
 
     "Creating multiple classrooms. Expected output: Classrooms created within a reasonable timeframe"
     def test_performance_create_multiple_classrooms(self):
@@ -209,8 +210,8 @@ class TestClassroomCreation(unittest.TestCase):
         for data in large_number_of_data:
             response = self.client.post("/classroom", json=data)
             # Expected Output: Classrooms created within a reasonable timeframe
-            self.assertEqual(response.status_code, 200)
-            self.assertIn("data", response.json())
+            assert response.status_code == 200
+            assert "data" in response.json()
 
     "Creating a classroom without proper authorization. Expected output: Restriction of classroom creation or appropriate error"
     def test_security_unauthorized_classroom_creation(self):
@@ -218,7 +219,7 @@ class TestClassroomCreation(unittest.TestCase):
         unauthorized_data = {...}  # Data for unauthorized classroom creation
         response = self.client.post("/classroom", json=unauthorized_data)
         # Expected Output: Restriction of classroom creation or appropriate error
-        self.assertNotEqual(response.status_code, 200)  # Expecting classroom creation to fail
+        assert response.status_code != 200  # Expecting classroom creation to fail
 
     "Integration with related functionalities"
     def test_integration_with_related_functionalities(self):
@@ -231,12 +232,12 @@ class TestClassroomCreation(unittest.TestCase):
                 "instructor": "test_instructor_integration",
             },
         )
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         classroom_id = response.json()["data"]["id"]
 
         # Test adding students
         response = self.client.post(f"/classroom/{classroom_id}/students", json={"name": "Alice"})
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
 
         # Test adding quizzes
         response = self.client.post(
@@ -256,8 +257,8 @@ class TestClassroomCreation(unittest.TestCase):
                 "expiration_time": "2024-03-01T00:00:00",
             },
         )
-        self.assertEqual(response.status_code, 200)
+        assert response.status_code == 200
         quiz_id = response.json()["data"]["id"]
 
 if __name__ == '__main__':
-    unittest.main()
+    pytest.main()
