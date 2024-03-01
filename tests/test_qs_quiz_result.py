@@ -27,6 +27,7 @@ class TestViewQuizResults:
 
     client = TestClient(service)
 
+    "Viewing quiz results after submission. Expected output: 200 OK"
     def test_view_quiz_results_after_submission(self):
         response = self.client.get(
             f"/quiz/results?class-id={classroom['id']}&quiz-id={quiz['id']}",
@@ -40,7 +41,6 @@ class TestViewQuizResults:
         assert response.status_code == 200
 
     "Viewing quiz results before submission. Expected output: 200 OK"
-
     def test_view_quiz_results_before_submission(self):
         response = self.client.get(
             f"/quiz/results?class-id={classroom['id']}&quiz-id={quiz['id']}",
@@ -48,7 +48,6 @@ class TestViewQuizResults:
         assert response.status_code == 200
 
     "Viewing quiz results for another student. Expected output: 403 Forbidden"
-
     def test_access_private_feedback(self):
         response = self.client.get(
             "/quiz/results?class-id={}&quiz-id={}&student-id={}".format(
@@ -61,6 +60,7 @@ class TestViewQuizResults:
             == "Access denied or redirection to own quiz results"
         )
 
+    "Tampering with quiz results. Expected output: 403 Forbidden"
     def test_quiz_result_tampering(self):
         response = self.client.put(
             "/quiz/results",
@@ -75,7 +75,6 @@ class TestViewQuizResults:
         assert response.json()["message"] == "Quiz result tampering detected"
 
     "Viewing large number of quiz results. Expected output: 200 OK"
-
     def test_large_number_of_questions(self):
         # Simulate accessing quiz results for that quiz
         response = self.client.get(
