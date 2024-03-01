@@ -29,19 +29,19 @@ class TestViewQuizResults:
         response = self.client.get(
             f"/quiz/results?class-id={classroom['id']}&quiz-id={quiz['id']}",
         )
-        assert response.status_code, 200
+        assert response.status_code == 200
 
     def test_view_quiz_results_after_submission_failing_score(self):
         response = self.client.get(
             f"/quiz/results?class-id={classroom['id']}&quiz-id={quiz['id']}",
         )
-        assert response.status_code, 200
+        assert response.status_code == 200
 
     def test_view_quiz_results_before_submission(self):
         response = self.client.get(
             f"/quiz/results?class-id={classroom['id']}&quiz-id={quiz['id']}",
         )
-        assert response.status_code, 200
+        assert response.status_code == 200
 
     def test_access_private_feedback(self):
         response = self.client.get(
@@ -49,7 +49,7 @@ class TestViewQuizResults:
                 classroom["id"], quiz["id"], "another_student_id"
             )
         )
-        assert response.status_code, 403
+        assert response.status_code == 403
         assert (
             response.json()["message"]
             == "Access denied or redirection to own quiz results"
