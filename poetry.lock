@@ -690,13 +690,13 @@ typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
 
 [[package]]
 name = "pypox"
-version = "2.0.0"
+version = "2.0.1"
 description = ""
 optional = false
 python-versions = ">=3.12,<4.0"
 files = [
-    {file = "pypox-2.0.0-py3-none-any.whl", hash = "sha256:0f4819dc7585d611be53ccf5f5c20b1addf0d4fc6f44bb600f8a6380c5678fcd"},
-    {file = "pypox-2.0.0.tar.gz", hash = "sha256:2e6cb2e808a06b80f8b585c8827793b7803837be1727187b8e5c89b7656da1ff"},
+    {file = "pypox-2.0.1-py3-none-any.whl", hash = "sha256:e035a169c5c2dcb10e194a5796cd9e095acef77729d7292d75b9c79dffa2d642"},
+    {file = "pypox-2.0.1.tar.gz", hash = "sha256:8c2ebad9cd45fdd8fd600ec5dccd083a51f6540376170bc4f4268a24657ac82a"},
 ]
 
 [package.dependencies]
@@ -1193,4 +1193,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "891d5055f26663074847bfb30f899bdde03c5afcc3994738641580e1ae6ee21c"
+content-hash = "539e4aa1a49afe9fed076035431dde3fd69c6e5e145b91b9a123e2e44684f215"

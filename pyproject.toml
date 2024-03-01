@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.12"
-pypox = "^2.0.0"
+pypox = ">=2.0.0"
 dyntastic = "^0.14.0"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 mangum = "^0.17.0"
