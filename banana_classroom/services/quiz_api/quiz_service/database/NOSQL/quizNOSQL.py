@@ -1,4 +1,4 @@
-from datetime import time 
+from datetime import datetime
 from typing import Optional
 from dyntastic import Dyntastic
 from pydantic import BaseModel, Field
@@ -41,7 +41,7 @@ class Quiz(BaseModel):
     instructor: str
     questions: list["Question"]
     show_result: bool = False
-    expiration_time: time
+    expiration_time: datetime  # expiration of quiz availability
 
 
 class Question(BaseModel):

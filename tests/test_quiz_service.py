@@ -9,7 +9,9 @@ os.environ["DYNTASTIC_HOST"] = "http://localhost:8000"
 os.environ["DYNTASTIC_REGION"] = "us-east-1"
 
 dynamodb = boto3.resource(
-    "dynamodb", region_name="us-east-1", endpoint_url="http://localhost:8000"
+    "dynamodb",
+    region_name=os.environ["DYNTASTIC_REGION"],
+    endpoint_url=os.environ["DYNTASTIC_HOST"],
 )
 
 if "classroom" not in dynamodb.meta.client.list_tables()["TableNames"]:
