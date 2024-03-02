@@ -6,7 +6,7 @@ from starlette import status
 class TestClassroomCreation:
 
     # Creating a classroom with valid data
-    def test_create_classroom_valid_data(test_client):
+    def test_create_classroom_valid_data(self, test_client):
         response = test_client.post(
             "/classroom",
             json={
@@ -21,7 +21,7 @@ class TestClassroomCreation:
         assert response.json()["data"]["instructor"] == "Ms. Johnson"
 
     # Creating a classroom with optional student list
-    def test_create_classroom_with_empty_students_list(test_client):
+    def test_create_classroom_with_empty_students_list(self, test_client):
         response = test_client.post(
             "/classroom",
             json={
@@ -38,7 +38,7 @@ class TestClassroomCreation:
         assert response.json()["data"]["students"] == []
 
     # Creating a classroom with optional quiz list
-    def test_create_classroom_with_empty_quiz_list(test_client):
+    def test_create_classroom_with_empty_quiz_list(self, test_client):
         response = test_client.post(
             "/classroom",
             json={
@@ -57,7 +57,7 @@ class TestClassroomCreation:
         assert response.json()["data"]["quizzes"] == []
 
     # Creating a classroom with missing title
-    def test_create_classroom_missing_title(test_client):
+    def test_create_classroom_missing_title(self, test_client):
         response = test_client.post(
             "/classroom",
             json={
@@ -69,7 +69,7 @@ class TestClassroomCreation:
         assert response.text == "Title is required"
 
     # Creating a classroom with missing description
-    def test_create_classroom_missing_description(test_client):
+    def test_create_classroom_missing_description(self, test_client):
         response = test_client.post(
             "/classroom",
             json={
@@ -81,7 +81,7 @@ class TestClassroomCreation:
         assert response.text == "Description is required"
 
     # Creating a classroom with missing instructor
-    def test_create_classroom_missing_instructor(test_client):
+    def test_create_classroom_missing_instructor(self, test_client):
         response = test_client.post(
             "/classroom",
             json={
@@ -93,7 +93,7 @@ class TestClassroomCreation:
         assert response.text == "Instructor is required"
 
     # Creating a classroom with invalid instructor
-    def test_create_classroom_invalid_instructor(test_client):
+    def test_create_classroom_invalid_instructor(self, test_client):
         response = test_client.post(
             "/classroom",
             json={
@@ -106,7 +106,7 @@ class TestClassroomCreation:
         assert response.text == "Instructor must be a string"
 
     # Creating a classroom with invalid title
-    def test_create_classroom_invalid_title(test_client):
+    def test_create_classroom_invalid_title(self, test_client):
         response = test_client.post(
             "/classroom",
             json={
@@ -119,7 +119,7 @@ class TestClassroomCreation:
         assert response.text == "Title must be a string"
 
     # Creating a classroom with long title
-    def test_create_classroom_long_title(test_client):
+    def test_create_classroom_long_title(self, test_client):
         response = test_client.post(
             "/classroom",
             json={
@@ -134,7 +134,7 @@ class TestClassroomCreation:
         )
 
     # Creating a classroom with long description
-    def test_create_classroom_long_description(test_client):
+    def test_create_classroom_long_description(self, test_client):
         response = test_client.post(
             "/classroom",
             json={
@@ -150,7 +150,7 @@ class TestClassroomCreation:
         )
 
     # Creating a classroom with long instructor
-    def test_create_classroom_long_instructor(test_client):
+    def test_create_classroom_long_instructor(self, test_client):
         response = test_client.post(
             "/classroom",
             json={
@@ -165,7 +165,7 @@ class TestClassroomCreation:
             "ensure this value has at most 30 characters" in response.text
         )
 
-    def test_performance_create_multiple_classrooms(test_client):
+    def test_performance_create_multiple_classrooms(self, test_client):
         # Input: Large number of valid classroom data
         large_number_of_data = [
             {
