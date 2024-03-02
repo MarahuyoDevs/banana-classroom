@@ -178,7 +178,6 @@ class TestClassroomCreation:
                 "description": "Description for Classroom 2",
                 "instructor": "Instructor 2",
             },
-            # Add more data as needed...
         ]
         start_time = time.time()  # Record start time
         for data in large_number_of_data:

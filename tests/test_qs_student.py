@@ -1,9 +1,4 @@
 import pytest
-import os
-
-# Set up environment variables
-os.environ["DYNTASTIC_HOST"] = "http://localhost:8000"
-os.environ["DYNTASTIC_REGION"] = "ap-southeast-1"
 
 @pytest.fixture(scope="module")
 def valid_classroom_id():
@@ -31,8 +26,10 @@ def quiz_data():
     # Provide test data for Quiz
     return {}  # Add test data as needed
 
+# Fixture to provide a test client with set up environment and necessary data
 class TestJoinClassroom:
 
+    # Test class for joining a classroom
     def test_join_valid_link(self, test_client, valid_classroom_id, valid_student_id):
         # Attempt to join a classroom with the given link
         response = test_client.get(
@@ -42,6 +39,7 @@ class TestJoinClassroom:
         assert "success" == response.json()["status"]
         assert valid_student_id == response.json()["data"]["students"]
 
+    # Test class for joining a classroom
     def test_join_invalid_link(self, test_client, invalid_classroom_id, valid_student_id):
         # Attempt to join a classroom with an invalid link
         response = test_client.get(
@@ -51,6 +49,7 @@ class TestJoinClassroom:
         assert "error" == response.json()["status"]
         assert "Invalid link" == response.json()["message"]
 
+    # Test class for submitting a quiz
     def test_submit_quiz(self, test_client, classroom_data, quiz_data):
         # Get a list of completed quizzes
         response = test_client.post(
@@ -73,6 +72,7 @@ class TestJoinClassroom:
             [x for x in response.json()["questions"] if x]
         )
 
+    # Test class for getting a list of incomplete quizzes
     def test_get_incomplete_quizzes(self, test_client):
         # Get a list of incomplete quizzes
         response = test_client.get("/student/incomplete_quizzes")
@@ -84,6 +84,7 @@ class TestJoinClassroom:
         assert response.status_code == 200
         assert response.json() == expected_output
 
+    # Test class for getting a list of completed quizzes
     def test_student_finished_quiz(self, quiz_data):
         # Student finished a quiz
         student_id = "student123"
@@ -92,6 +93,7 @@ class TestJoinClassroom:
         student["completed_quizzes"].append(quiz_data["id"])
         assert quiz_data["id"] == student["completed_quizzes"]
 
+    # Test class for getting a list of completed quizzes
     def test_student_failed_quiz(self, quiz_data):
         # Student failed a quiz
         student_id = "student456"

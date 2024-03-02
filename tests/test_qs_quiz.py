@@ -1,6 +1,7 @@
 import pytest
 from starlette import status
 
+# Fixture to create a quiz
 @pytest.fixture(scope="function")
 def create_quiz_valid_data(test_client):
     """Fixture to create a quiz and return its ID."""
@@ -18,6 +19,7 @@ def create_quiz_valid_data(test_client):
     )
     return response.json()["data"]["id"]
 
+# Fixture to create a quiz without questions
 @pytest.fixture(scope="function")
 def create_quiz_valid_data_without_questions(test_client):
     """Fixture to create a quiz without questions."""
@@ -34,6 +36,7 @@ def create_quiz_valid_data_without_questions(test_client):
     yield quiz_id
     test_client.delete(f"/quiz/{quiz_id}")
 
+# Fixture to create a quiz with duplicate questions
 @pytest.fixture(scope="function")
 def create_quiz_with_duplicate_questions(test_client):
     """Fixture to create a quiz with duplicate questions."""
@@ -52,6 +55,7 @@ def create_quiz_with_duplicate_questions(test_client):
     )
     return response
 
+# Fixture to create a quiz
 @pytest.fixture(scope="function")
 def modify_quiz(test_client, create_quiz):
     """Fixture to create a quiz and modify its title."""
@@ -59,6 +63,7 @@ def modify_quiz(test_client, create_quiz):
     yield quiz_id
     test_client.delete(f"/quiz/{quiz_id}")
 
+# Test class for creating a quiz
 def test_create_quiz_valid_data(test_client):
     """Test creating a quiz with valid data and questions."""
     response = test_client.post(
@@ -77,6 +82,7 @@ def test_create_quiz_valid_data(test_client):
     assert response.json()["data"]["title"] == "Math Quiz"
     assert len(response.json()["data"]["questions"]) == 2
 
+# Test class for creating a quiz
 def test_create_quiz_valid_data_no_questions(test_client):
     """Test creating a quiz with valid data but without questions."""
     response = test_client.post(
@@ -94,6 +100,7 @@ def test_create_quiz_valid_data_no_questions(test_client):
     assert response.json()["data"]["instructor"] == "John Doe"
     assert response.json()["data"]["questions"] == []
 
+# Test class for creating a quiz
 def test_create_quiz_missing_mandatory_fields(test_client):
     """Test creating a quiz with missing mandatory fields."""
     response = test_client.post(
@@ -103,12 +110,14 @@ def test_create_quiz_missing_mandatory_fields(test_client):
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "description" in response.json()["detail"]
 
+# Test class for creating a quiz
 def test_create_quiz_with_duplicate_questions(create_quiz_with_duplicate_questions):
     """Test creating a quiz with duplicate questions."""
     response = create_quiz_with_duplicate_questions
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert "Questions must be unique" in response.json()["detail"]
 
+# Test class for adding a question to an existing quiz
 def test_add_valid_question_to_existing_quiz(test_client, create_quiz):
     """Test adding a valid question to an existing quiz."""
     quiz_id = create_quiz
@@ -122,6 +131,7 @@ def test_add_valid_question_to_existing_quiz(test_client, create_quiz):
     print("Response content:", response.content)
     assert response.status_code == 200
 
+# Test class for adding a question to an existing quiz
 def test_add_question_with_missing_required_field(test_client, create_quiz):
     """Test adding a question with missing required field to an existing quiz."""
     quiz_id = create_quiz
@@ -134,6 +144,7 @@ def test_add_question_with_missing_required_field(test_client, create_quiz):
     print("Response content:", response.content)
     assert response.status_code == 422
 
+# Test class for modifying quiz title
 def test_modify_quiz_title(test_client):
     """Test modifying quiz title."""
     response = test_client.post(
@@ -153,6 +164,7 @@ def test_modify_quiz_title(test_client):
     response = test_client.put(f"/quiz/{quiz_id}/modify_title", json={"title": new_title})
     assert response.status_code == 200
 
+# Test class for modifying quiz description
 def test_modify_quiz_description(test_client):
     """Test modifying quiz description."""
     response = test_client.post(

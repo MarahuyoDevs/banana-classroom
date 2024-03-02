@@ -21,7 +21,7 @@ def quiz(classroom):
 def test_setup(dynamodb, test_client, classroom, quiz):
     yield {"client": test_client, "classroom": classroom}
 
-# Test class
+# Test class for viewing quiz results
 class TestViewQuizResults:
 
     def test_view_quiz_results_after_submission(self, test_setup):
