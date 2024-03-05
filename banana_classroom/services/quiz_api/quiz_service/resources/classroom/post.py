@@ -1,4 +1,5 @@
-from pypox.processing import processor, BodyDict
+from pypox.processing.base import processor
+from pypox._types import BodyDict
 from starlette.responses import JSONResponse
 from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import (
     Classroom,
@@ -7,7 +8,7 @@ from starlette import status
 from starlette.exceptions import HTTPException
 
 
-@processor
+@processor()
 async def endpoint(body: BodyDict):
 
     title = body.get("title", "")

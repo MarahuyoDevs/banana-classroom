@@ -1,4 +1,5 @@
-from pypox.processing import processor, BodyDict, PathStr
+from pypox.processing.base import processor
+from pypox._types import BodyDict, PathStr
 from starlette.responses import JSONResponse
 from starlette.exceptions import HTTPException
 from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import (
@@ -7,7 +8,7 @@ from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL im
 from dyntastic import A
 
 
-@processor
+@processor()
 async def endpoint(id: PathStr, body: BodyDict):
 
     classroom = Classroom.safe_get(id)

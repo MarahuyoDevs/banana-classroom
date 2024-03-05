@@ -1,6 +1,7 @@
-from pypox.processing import processor, QueryStr
+from pypox.processing.base import processor
+from pypox._types import QueryStr
 
 
-@processor
+@processor()
 async def endpoint(class_id: QueryStr, quiz_id: QueryStr):
     pass

@@ -1,4 +1,5 @@
-from pypox.processing import processor, QueryStr
+from pypox.processing.base import processor
+from pypox._types import QueryStr
 from starlette.responses import JSONResponse
 from starlette.exceptions import HTTPException
 from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import (
@@ -6,7 +7,7 @@ from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL im
 )
 
 
-@processor
+@processor()
 async def endpoint(class_id: QueryStr, quiz_id: QueryStr):
 
     classroom = Classroom.safe_get(class_id)

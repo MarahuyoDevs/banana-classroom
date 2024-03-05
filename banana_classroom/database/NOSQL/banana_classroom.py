@@ -1,11 +1,15 @@
 from typing import Optional
+from uuid import uuid4
 from dyntastic import Dyntastic
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class User(Dyntastic):
 
-    id: str
+    __table_name__ = "users"
+    __hash_key__ = "id"
+
+    id: str = Field(default_factory=lambda: str(uuid4()))
     name: str
     email: str
     password: str  # hashed
@@ -16,7 +20,10 @@ class User(Dyntastic):
 
 class Classroom(Dyntastic):
 
-    id: str
+    __table_name__ = "classrooms"
+    __hash_key__ = "id"
+
+    id: str = Field(default_factory=lambda: str(uuid4()))
     name: str
     description: str
     instructor: str  # user_id
@@ -26,6 +33,8 @@ class Classroom(Dyntastic):
 
 
 class Question(BaseModel):
+
+    id: str = Field(default_factory=lambda: str(uuid4()))
     type: str
     text: str
     options: Optional[list[str]] = None
@@ -34,7 +43,10 @@ class Question(BaseModel):
 
 class Quiz(Dyntastic):
 
-    id: str
+    __table_name__ = "quiz"
+    __hash_key__ = "id"
+
+    id: str = Field(default_factory=lambda: str(uuid4()))
     name: str
     description: str
     questions: list[Question]  # question_id

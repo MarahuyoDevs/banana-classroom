@@ -1,8 +1,12 @@
-from pypox.processing import PathStr, BodyDict, processor
-from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import Classroom
+from pypox.processing.base import processor
+from pypox._types import PathStr, BodyDict
+from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import (
+    Classroom,
+)
 from starlette.exceptions import HTTPException
 from starlette import status
 from starlette.responses import JSONResponse
+
 
 @processor
 async def endpoint(id: PathStr, body: BodyDict):
