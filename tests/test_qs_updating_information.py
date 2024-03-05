@@ -1,7 +1,8 @@
 from starlette.testclient import TestClient
 from banana_classroom.services.quiz_api.quiz_service.app import service
 from banana_classroom.services.quiz_api.quiz_service.database.NOSQL.quizNOSQL import (
-    Classroom, Student
+    Classroom,
+    Student,
 )
 from starlette import status
 import os
@@ -19,11 +20,13 @@ dynamodb = boto3.resource(
 if "classroom" not in dynamodb.meta.client.list_tables()["TableNames"]:
     Classroom.create_table()
 
+
 class TestUpdateInformation:
 
     client = TestClient(service)
 
     "Updating classroom title successfully"
+
     def test_update_classroom_title_success(self):
         # Create a classroom to update its title
         response = self.client.post(
@@ -38,12 +41,15 @@ class TestUpdateInformation:
 
         # Update classroom title
         new_title = "Advanced Physics Class"
-        update_response = self.client.put(f"/classroom/{classroom_id}", json={"title": new_title})
+        update_response = self.client.put(
+            f"/classroom/{classroom_id}", json={"title": new_title}
+        )
 
         assert update_response.status_code == status.HTTP_200_OK
         assert update_response.json()["data"]["title"] == new_title
 
     "Updating classroom title with excessive length"
+
     def test_update_classroom_title_excessive_length(self):
         # Create a classroom to update its title
         response = self.client.post(
@@ -58,12 +64,15 @@ class TestUpdateInformation:
 
         # Attempt to update classroom title with excessive length
         new_title = "This is an excessively long title that exceeds the character limit"
-        update_response = self.client.put(f"/classroom/{classroom_id}", json={"title": new_title})
+        update_response = self.client.put(
+            f"/classroom/{classroom_id}", json={"title": new_title}
+        )
 
         assert update_response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
         assert "exceeds the limit" in update_response.text
 
     "Update classroom title with an empty string. Expected output: Title cannot be empty"
+
     def test_update_classroom_title_with_empty_string(self):
         # Create a classroom to update
         response = self.client.post(
@@ -86,6 +95,7 @@ class TestUpdateInformation:
         assert response.text == "Title cannot be empty"
 
     "Successfully update classroom description. Expected output: Classroom description is updated successfully in the system."
+
     def test_update_classroom_description(self):
         # Create a classroom to update
         response = self.client.post(
@@ -109,6 +119,7 @@ class TestUpdateInformation:
         assert response.json()["data"]["description"] == new_description
 
     "Updating a classroom description with excessive length. Expected output: System throws an error message indicating description length exceeds the limit."
+
     def test_update_classroom_description_excessive_length(self):
         # Create a classroom with initial description
         initial_response = self.client.post(
@@ -120,7 +131,7 @@ class TestUpdateInformation:
             },
         )
         classroom_id = initial_response.json()["data"]["id"]
-        
+
         # Attempt to update the description with excessive length
         response = self.client.put(
             f"/classroom/{classroom_id}",
@@ -131,6 +142,7 @@ class TestUpdateInformation:
         assert response.text == "Description length exceeds the limit"
 
     "Updating a classroom description with empty string. Expected output: System throws an error message indicating description cannot be empty."
+
     def test_update_classroom_description_empty_string(self):
         # Create a classroom with initial description
         initial_response = self.client.post(
@@ -142,7 +154,7 @@ class TestUpdateInformation:
             },
         )
         classroom_id = initial_response.json()["data"]["id"]
-        
+
         # Attempt to update the description with empty string
         response = self.client.put(
             f"/classroom/{classroom_id}",
@@ -158,14 +170,14 @@ class TestUpdateInformation:
             "id": "123",
             "name": "John Doe",
             "completed_quizzes": [],
-            "incompleted_quizzes": []
+            "incompleted_quizzes": [],
         }
         Student(**student_data)
 
         # Updating student name
         new_name = "Jane Doe"
         response = self.client.put("/student/123", json={"name": new_name})
-        
+
         # Checking if update is successful
         assert response.status_code == status.HTTP_200_OK
         assert response.json()["name"] == new_name
@@ -176,7 +188,7 @@ class TestUpdateInformation:
             "id": "456",
             "name": "John Doe",
             "completed_quizzes": [],
-            "incompleted_quizzes": []
+            "incompleted_quizzes": [],
         }
         Student(**student_data)
 
@@ -209,12 +221,12 @@ class TestUpdateInformation:
         classroom_id = classroom_response.json()["data"]["id"]
 
         quiz_result_id = classroom_response.json()["data"]["quizzes"][0]["id"]
-        
+
         # Update the quiz result score
         new_score = 90
         update_response = self.client.put(
             f"/classroom/{classroom_id}/quizzes/{quiz_result_id}",
-            json={"score": new_score}
+            json={"score": new_score},
         )
 
         assert update_response.status_code == status.HTTP_200_OK
@@ -242,12 +254,12 @@ class TestUpdateInformation:
         classroom_id = classroom_response.json()["data"]["id"]
 
         quiz_result_id = classroom_response.json()["data"]["quizzes"][0]["id"]
-        
+
         # Attempt to update the quiz result score with an invalid value
         invalid_score = -10
         update_response = self.client.put(
             f"/classroom/{classroom_id}/quizzes/{quiz_result_id}",
-            json={"score": invalid_score}
+            json={"score": invalid_score},
         )
 
         assert update_response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
