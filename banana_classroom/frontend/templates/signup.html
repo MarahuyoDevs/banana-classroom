@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
-<main class="flex flex-col justify-center items-center h-screen max-w-screen px-4">
+<main id="main" class="flex flex-col justify-center items-center h-screen max-w-screen gap-2 px-4">
     <h1 class="text-2xl font-bold">Banana Classroom</h1>
+    <span class="font-light">{{request.query_params['user_type'].capitalize()}} Registration</span>
     <form class="space-y-2 w-full">
         <div class="space-y-2">
             <label for="">
@@ -45,9 +46,13 @@
                 <input type="checkbox" checked="checked" class="checkbox" />
             </label>
         </div>
-        <a href="/signin" class="label-text underline py-2 px-1">Already have an account?</a> 
+        <a href="/signin?user_type={{request.query_params['user_type']}}" class="label-text underline py-2 px-1">Already have an account?</a> 
         <button class="btn btn-primary btn-block" type="submit">Sign Up</button>
-        <button class="btn btn-outline btn-secondary btn-block">Switch to others</button>
+        {% if request.query_params['user_type'] == 'student' %}
+            <a href="/signup?user_type=instructor" class="btn btn-outline btn-secondary btn-block">Switch to Student</a>
+        {% elif request.query_params['user_type'] == 'instructor' %}
+            <a href="/signup?user_type=student" class="btn btn-outline btn-secondary btn-block">Switch to Instructor</a>
+        {% endif %}
     </form>
 </main>
     

@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% block content %}
-<main class="flex flex-col justify-center items-center h-screen max-w-screen px-4">
+<main id="main" class="flex flex-col justify-center items-center h-screen max-w-screen gap-2 px-4">
     <h1 class="text-2xl font-bold">Banana Classroom</h1>
+    <span class="font-light">{{request.query_params['user_type'].capitalize()}} Portal</span>
     <form class="space-y-2 w-full" action="">
         <div class="space-y-2">
             <label for="">
@@ -18,7 +19,7 @@
             </label>
             <label class="input input-bordered flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="w-4 h-4 opacity-70"><path fill-rule="evenodd" d="M14 6a4 4 0 0 1-4.899 3.899l-1.955 1.955a.5.5 0 0 1-.353.146H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2.293a.5.5 0 0 1 .146-.353l3.955-3.955A4 4 0 1 1 14 6Zm-4-2a.75.75 0 0 0 0 1.5.5.5 0 0 1 .5.5.75.75 0 0 0 1.5 0 2 2 0 0 0-2-2Z" clip-rule="evenodd" /></svg>
-                <input type="password" class="grow" value="password" />
+                <input type="password" class="grow" />
             </label>
         </div>
         <div class="form-control">
@@ -27,9 +28,13 @@
                 <input type="checkbox" checked="checked" class="checkbox" />
             </label>
         </div>
-        <a href="/signup" class="label-text underline py-2 px-1">Don't have an account?</a> 
+        <a href="/signup?user_type={{request.query_params['user_type']}}" class="label-text underline py-2 px-1">Don't have an account?</a> 
         <button class="btn btn-primary btn-block" type="submit">Sign in</button>
-        <button class="btn btn-outline btn-secondary btn-block">Switch to others</button>
+        {% if request.query_params['user_type'] == 'student' %}
+            <a href="/signin?user_type=instructor" class="btn btn-outline btn-secondary btn-block">Switch to Student</a>
+        {% elif request.query_params['user_type'] == 'instructor' %}
+            <a href="/signin?user_type=student" class="btn btn-outline btn-secondary btn-block">Switch to Instructor</a>
+        {% endif %}
     </form>
 </main>
 {% endblock %}
