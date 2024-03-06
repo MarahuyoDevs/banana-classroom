@@ -6,7 +6,7 @@ from starlette import status
 from pypox._types import BodyDict
 from dyntastic import A
 from passlib.hash import bcrypt
-
+from datetime import datetime
 
 @processor()
 async def endpoint(body: BodyDict):
@@ -24,14 +24,14 @@ async def endpoint(body: BodyDict):
         None
     """
 
-    user = User(**body)
+    user = User(**body,created_at=str(datetime.now()),updated_at=str(datetime.now()))
 
     # hash the password
     user.password = bcrypt.hash(user.password)
 
-    if User.query(A.email == user.email):
+    if User.safe_get(user.email):
         raise HTTPException(status.HTTP_409_CONFLICT, "User already exists")
 
     user.save()  # save the user to the database
 
-    return JSONResponse(user.model_dump(exclude={"password"}))
+    return JSONResponse(user.model_dump(exclude={"password"}),status.HTTP_201_CREATED)
