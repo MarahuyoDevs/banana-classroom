@@ -1,6 +1,7 @@
 from starlette.testclient import TestClient
 import os
 
+
 class TestFrontEnd:
 
     def test_signin(self, service_v2_client: TestClient):
