@@ -1,5 +1,5 @@
 from starlette.testclient import TestClient
-
+import os
 
 class TestFrontEnd:
 
@@ -8,7 +8,7 @@ class TestFrontEnd:
         assert response.status_code == 200
 
     def test_signup(self, service_v2_client: TestClient):
-        response = service_v2_client.get("/signup")
+        response = service_v2_client.get("/signup?user_type=student")
         assert response.status_code == 200
 
     def test_dashboard(self, service_v2_client: TestClient):

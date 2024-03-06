@@ -1,5 +1,6 @@
 from starlette.testclient import TestClient
-
+from banana_classroom.database.NOSQL.banana_classroom import User
+from datetime import datetime
 
 class TestUser:
 

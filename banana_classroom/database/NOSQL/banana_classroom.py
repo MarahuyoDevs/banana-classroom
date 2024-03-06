@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 class User(Dyntastic):
 
     __table_name__ = "users"
-    __hash_key__ = "id"
+    __hash_key__ = "email"
 
     id: str = Field(default_factory=lambda: str(uuid4()))
     name: str
@@ -21,7 +21,7 @@ class User(Dyntastic):
 class Classroom(Dyntastic):
 
     __table_name__ = "classrooms"
-    __hash_key__ = "id"
+    __hash_key__ = "name"
 
     id: str = Field(default_factory=lambda: str(uuid4()))
     name: str
