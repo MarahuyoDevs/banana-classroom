@@ -181,8 +181,6 @@ class TestClassroomTable:
         for student_email in classroom_db.students:
             assert student_email in [student1.email, student2.email]
 
-        # aight aight wla tulog e
-
     def test_read_classroom(self, create_user):
         classroom = Classroom.safe_get(hash_key="test classroom")
 
