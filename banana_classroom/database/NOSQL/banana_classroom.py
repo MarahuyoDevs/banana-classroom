@@ -27,28 +27,37 @@ class Classroom(Dyntastic):
     name: str
     description: str
     instructor: str  # user_id
-    students: list[str]  # user_id
+    students: list[str] = []  # user_id
+    quizzes: list[str] = []  # quiz_id
     created_at: str
     updated_at: str
 
 
-class Question(BaseModel):
+class Question(Dyntastic):
+
+    __table_name__ = "questions"
+    __hash_key__ = "id"
+    __range_key__ = "quiz_id"
 
     id: str = Field(default_factory=lambda: str(uuid4()))
+    quiz_id: str
     type: str
     text: str
-    options: Optional[list[str]] = None
+    options: list[str] = []
     answer: str
+    created_at: str
+    updated_at: str
 
 
 class Quiz(Dyntastic):
 
-    __table_name__ = "quiz"
+    __table_name__ = "quizzes"
     __hash_key__ = "id"
 
     id: str = Field(default_factory=lambda: str(uuid4()))
+    classroom_id: str
     name: str
     description: str
-    questions: list[Question]  # question_id
+    questions: list[str] = []  # question_id
     created_at: str
     updated_at: str

@@ -1,44 +1,55 @@
+from typing import Callable
+from faker import Faker
 from starlette.testclient import TestClient
 from banana_classroom.database.NOSQL.banana_classroom import User
 from datetime import datetime
 
+
 class TestUser:
 
-    def test_create_user(self, service_v2_client: TestClient):
-        user = User(
-            name="Vien Kendrick A. Morfe",
-            email="kumamoment@gmail.com",
-            password="mygoodpassword",
-            role="student",
-            created_at=str(datetime.now()),
-            updated_at=str(datetime.now())
+    my_user = {}
+
+    def test_create_user(self, service_v2_client: TestClient, create_user: Callable):
+        user, *_ = create_user("student")
+        self.my_user["dummy"] = user
+        response = service_v2_client.post(
+            f"/api/v1/user/create?user_type={user.role}",
+            json={
+                **user.model_dump(exclude={"created_at", "updated_at"}),
+                "confirm_password": user.password,
+            },
         )
-        response = service_v2_client.post("/api/v1/user/create", json=user.model_dump(exclude={'created_at','updated_at'}))
         assert response.status_code == 201
-        data = response.json()
-        assert data['email'] == "kumamoment@gmail.com"
-        assert data['name'] == "Vien Kendrick A. Morfe"
-        assert data['role'] == "student"
-        assert 'password' not in data
+        assert response.text == "User created successfully"
 
     def test_read_user(self, service_v2_client: TestClient):
-        response = service_v2_client.get("/api/v1/user/me/",headers={"email":"kumamoment@gmail.com"})
+        response = service_v2_client.get(
+            "/api/v1/user/me/", headers={"email": self.my_user["dummy"].email}
+        )
         assert response.status_code == 200
         data = response.json()
-        assert data['email'] == "kumamoment@gmail.com"
-        assert data['name'] == "Vien Kendrick A. Morfe"
-        assert data['role'] == "student"
-        assert 'password' not in data
-        
+        assert data["email"] == self.my_user["dummy"].email
+        assert data["name"] == self.my_user["dummy"].name
+        assert data["role"] == self.my_user["dummy"].role
+        assert "password" not in data
+
     def test_update_user(self, service_v2_client: TestClient):
-        response = service_v2_client.put("/api/v1/user/me/",headers={"email":"kumamoment@gmail.com"}, json={"name":"Vien Kendrick A. Morfe"})
+        fake = Faker()
+        new_name = fake.name()
+        response = service_v2_client.put(
+            "/api/v1/user/me/",
+            headers={"email": self.my_user["dummy"].email},
+            json={"name": new_name},
+        )
         assert response.status_code == 200
         data = response.json()
-        assert data['email'] == "kumamoment@gmail.com"
-        assert data['name'] == "Vien Kendrick A. Morfe"
-        assert data['role'] == "student"
-        assert 'password' not in data
+        assert data["email"] == self.my_user["dummy"].email
+        assert data["name"] == new_name
+        assert data["role"] == self.my_user["dummy"].role
+        assert "password" not in data
 
     def test_delete_user(self, service_v2_client: TestClient):
-        response = service_v2_client.delete("/api/v1/user/me/", headers={"email":"kumamoment@gmail.com"})
+        response = service_v2_client.delete(
+            "/api/v1/user/me/", headers={"email": self.my_user["dummy"].email}
+        )
         assert response.status_code == 204

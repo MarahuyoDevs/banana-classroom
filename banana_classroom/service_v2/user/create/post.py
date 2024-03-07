@@ -32,7 +32,6 @@ async def endpoint(body: BodyDict, user_type: QueryStr):
 
     user = User(
         **body,
-        role=user_type,
         created_at=str(datetime.now()),
         updated_at=str(datetime.now()),
     )
