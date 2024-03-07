@@ -143,6 +143,24 @@ class TestClassroomTable:
         )
         users = [x for x in User.scan((A.role == "student"))]  # type: ignore
         assert len(users) == 2
+
+        student1 = create_user(
+            name="vien1 morfe",
+            email="morfevien1@gmail.com",
+            password="morfe123",
+            role="student",
+            created_at=self.time,
+            updated_at=self.time,
+        )
+        student2 = create_user(
+            name="vien2 morfe",
+            email="morfevien2@gmail.com",
+            password="morfe123",
+            role="student",
+            created_at=self.time,
+            updated_at=self.time,
+        )
+        users = [x for x in User.scan(A.role == "student")]  # type: ignore
         classroom = Classroom(
             name="test classroom",
             description="test classroom description",
@@ -164,3 +182,37 @@ class TestClassroomTable:
             assert student_email in [student1.email, student2.email]
 
         # aight aight wla tulog e
+
+    def test_read_classroom(self, create_user):
+        classroom = Classroom.safe_get(hash_key="test classroom")
+
+        assert classroom
+        assert classroom.name == "test classroom"
+        assert classroom.description == "test classroom description"
+        assert classroom.instructor == "morfevien@gmail.com"
+
+    def test_update_classroom(self, create_user):
+        classroom = Classroom.safe_get(hash_key="test classroom")
+        new_instructor = create_user(
+            name="Mhell Bergonio",
+            email="mhellbergonio@gmail.com",
+            password="morfe123",
+            role="instructor",
+            created_at=self.time,
+            updated_at=self.time,
+        )
+        assert classroom
+        classroom.update(A.description.set("new description for classroom"))
+        classroom.update(A.instructor.set(new_instructor.email))
+        new_classroom = Classroom.safe_get(hash_key="test classroom")
+        assert new_classroom
+        assert new_classroom.name == "test classroom"
+        assert new_classroom.description == "new description for classroom"
+        assert new_classroom.instructor == new_instructor.email
+
+    def test_delete_classroom(self):
+        classroom = Classroom.safe_get(hash_key="test classroom")
+        assert classroom
+        classroom.delete()
+        classroom = Classroom.safe_get(hash_key="test classroom")
+        assert not classroom

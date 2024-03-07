@@ -2,6 +2,9 @@ from pypox.processing.base import processor
 from starlette.responses import PlainTextResponse
 from starlette.requests import Request
 from banana_classroom.frontend.app import template
+from httpx import AsyncClient, ASGITransport
+from banana_classroom.service_v2.app import api_service
+from starlette.testclient import TestClient
 
 
 @processor()
