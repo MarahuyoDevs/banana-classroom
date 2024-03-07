@@ -1,6 +1,6 @@
 import os
 from starlette.testclient import TestClient
-from banana_classroom.database.NOSQL.banana_classroom import User, Classroom
+from banana_classroom.database.NOSQL.banana_classroom import User, Classroom, Quiz
 import pytest
 from datetime import datetime
 import boto3
@@ -42,6 +42,27 @@ def create_user():
         )
         user.save()
         return user
+
+    return create
+
+@pytest.fixture
+def create_quiz():
+    def create(
+        name: str,
+        description: str,
+        questions: list,
+        created_at: str,
+        updated_at: str,
+    ):
+        quiz = Quiz(
+            name=name,
+            description=description,
+            questions=questions,
+            created_at=created_at,
+            updated_at=updated_at,
+        )
+        quiz.save()
+        return quiz
 
     return create
 
@@ -141,26 +162,9 @@ class TestClassroomTable:
             created_at=self.time,
             updated_at=self.time,
         )
-        users = [x for x in User.scan((A.role == "student"))]  # type: ignore
+        users = [x for x in User.scan(A.role == "student")]  # type: ignore
         assert len(users) == 2
 
-        student1 = create_user(
-            name="vien1 morfe",
-            email="morfevien1@gmail.com",
-            password="morfe123",
-            role="student",
-            created_at=self.time,
-            updated_at=self.time,
-        )
-        student2 = create_user(
-            name="vien2 morfe",
-            email="morfevien2@gmail.com",
-            password="morfe123",
-            role="student",
-            created_at=self.time,
-            updated_at=self.time,
-        )
-        users = [x for x in User.scan(A.role == "student")]  # type: ignore
         classroom = Classroom(
             name="test classroom",
             description="test classroom description",
@@ -214,3 +218,62 @@ class TestClassroomTable:
         classroom.delete()
         classroom = Classroom.safe_get(hash_key="test classroom")
         assert not classroom
+
+class TestQuizTable:
+    time = str(datetime.now())
+
+    def test_create_quiz(self, create_quiz):
+        questions = [
+            {
+                "question": "Richest Man in Philippines",
+                "options": ["Blengblong Marcos", "Willie Revillame", "Henry Sy", "Enrique Razon Jr"],
+                "answer": "Enrique Razon Jr",
+            },
+            {
+                "question": "Appointed Son of God",
+                "options": ["Apollo Quiboloy", "Eduardo Manalo", "Eli Soriano", "Felix Manalo"],
+                "answer": "Apollo Quiboloy",
+            },
+        ]
+        quiz = create_quiz(
+            name="Test Quiz",
+            description="Test Description",
+            questions=questions,
+            created_at=self.time,
+            updated_at=self.time,
+        )
+
+        quiz_db = Quiz.safe_get(hash_key="Test Quiz")
+        assert quiz_db
+        assert quiz_db.name == quiz.name
+        assert quiz_db.description == quiz.description
+        assert quiz_db.questions == quiz.questions
+        assert quiz_db.created_at == quiz.created_at
+        assert quiz_db.updated_at == quiz.updated_at
+
+    def test_read_quiz(self, create_quiz):
+        quiz = Quiz.safe_get(hash_key="Test Quiz")
+        assert quiz
+        assert quiz.name == "Test Quiz"
+        assert quiz.description == "Test Description"
+
+    def test_update_quiz(self, create_quiz):
+        quiz = Quiz.safe_get(hash_key="Test Quiz")
+        new_time = str(datetime.now())
+        assert quiz
+        new_description = "Updated test description for the test quiz"
+        quiz.update(A.description.set(new_description))
+        quiz.update(A.updated_at.set(new_time))
+        updated_quiz = Quiz.safe_get(hash_key="Test Quiz")
+        assert updated_quiz
+        assert updated_quiz.name == "Test Quiz"
+        assert updated_quiz.description == new_description
+        assert updated_quiz.created_at == self.time
+        assert updated_quiz.updated_at == new_time
+
+    def test_delete_quiz(self, create_quiz):
+        quiz = Quiz.safe_get(hash_key="Test Quiz")
+        assert quiz
+        quiz.delete()
+        deleted_quiz = Quiz.safe_get(hash_key="Test Quiz")
+        assert not deleted_quiz
