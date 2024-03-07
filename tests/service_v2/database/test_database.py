@@ -15,15 +15,19 @@ dynamodb = boto3.resource(
     endpoint_url=os.environ["DYNTASTIC_HOST"],
 )
 
+# Create the 'users' table if it doesn't exist
 if "users" not in dynamodb.meta.client.list_tables()["TableNames"]:
     User.create_table()
 
+# Create the 'classrooms' table if it doesn't exist
 if "classrooms" not in dynamodb.meta.client.list_tables()["TableNames"]:
     Classroom.create_table()
 
 
 @pytest.fixture
 def create_user():
+    """ Fixture to create a user in the database.
+    Returns a function that takes name, email, password, role, created_at, and updated_at as arguments and returns a User object. """
     def create(name, email, password, role, created_at, updated_at):
         user = User(
             name=name,
@@ -35,11 +39,12 @@ def create_user():
         )
         user.save()
         return user
-
     return create
 
 @pytest.fixture
 def create_quiz():
+    """Fixture to create a quiz in the database.
+    Returns a function that takes name, description, questions, created_at, and updated_at as arguments and returns a Quiz object."""
     def _create(name, description, questions, created_at, updated_at):
         quiz = Quiz(
             name=name,
@@ -50,11 +55,9 @@ def create_quiz():
         )
         quiz.save()
         return quiz
-
     return _create
 
-
-class TestUserTable:
+class TestUserTable: #Test cases for the User table.
     time = str(datetime.now())
 
     @pytest.mark.parametrize(
@@ -66,6 +69,12 @@ class TestUserTable:
         ],
     )
     def test_create_user(self, name, email, password, role):
+        """ Test case to create a new user with valid data.
+          Args:
+            name (str): Name of the user.
+            email (str): Email of the user.
+            password (str): Password of the user.
+            role (str): Role of the user (student or instructor).   """
         user = User(
             name=name,
             email=email,
@@ -91,6 +100,8 @@ class TestUserTable:
         ],
     )
     def test_get_user(self, email):
+        """Test case to retrieve a user by email.
+        Args:   email (str): Email of the user to retrieve."""
         users = User.query(hash_key=email)
         for user in users:
             assert user.email == email
@@ -104,6 +115,10 @@ class TestUserTable:
         ],
     )
     def test_update_user(self, email, new_password):
+        """Test case to update a user's password.
+        Args:
+            email (str): Email of the user to update.
+            new_password (str): New password to set.    """
         new_time = str(datetime.now())
         users = User.query(hash_key=email)
         for user in users:
@@ -124,6 +139,8 @@ class TestUserTable:
         ],
     )
     def test_delete_user(self, email):
+        """Test case to delete a user.
+        Args:   email (str): Email of the user to delete.   """
         users = User.query(hash_key=email)
         for user in users:
             user.delete()
@@ -131,7 +148,8 @@ class TestUserTable:
         assert not deleted_user
 
 
-class TestClassroomTable:
+class TestClassroomTable: #Test cases for the Classroom table.
+    
     time = str(datetime.now())
     
     @pytest.mark.parametrize(
@@ -153,6 +171,13 @@ class TestClassroomTable:
     )
 
     def test_create_classroom(self, create_user, classroom_name, classroom_description, instructor_email, student_emails):
+        """ Test case to create a new classroom.
+        Args:
+            create_user (function): Fixture to create a user.
+            classroom_name (str): Name of the classroom.
+            classroom_description (str): Description of the classroom.
+            instructor_email (str): Email of the instructor.
+            student_emails (list): List of student emails.  """
         # Create instructor and student users
         instructor = create_user(
             name="Jener Galang",
@@ -193,6 +218,8 @@ class TestClassroomTable:
         assert set(classroom_db.students) == set(student.email for student in students)
 
     def test_read_classroom(self, create_user):
+        """ Test case to read a classroom.
+        Args:   create_user (function): Fixture to create a user.   """
         classroom = Classroom.safe_get(hash_key="test classroom")
 
         assert classroom
@@ -201,6 +228,8 @@ class TestClassroomTable:
         assert classroom.instructor == "morfevien@gmail.com"
 
     def test_update_classroom(self, create_user):
+        """ Test case to update a classroom.
+         Args:  create_user (function): Fixture to create a user.   """
         classroom = Classroom.safe_get(hash_key="test classroom")
         new_instructor = create_user(
             name="Mhell Bergonio",
@@ -220,13 +249,14 @@ class TestClassroomTable:
         assert new_classroom.instructor == new_instructor.email
 
     def test_delete_classroom(self):
+        """ Test case to delete a classroom.    """
         classroom = Classroom.safe_get(hash_key="test classroom")
         assert classroom
         classroom.delete()
         classroom = Classroom.safe_get(hash_key="test classroom")
         assert not classroom
 
-class TestQuizTable:
+class TestQuizTable: #Test cases for the Quiz table.
     time = str(datetime.now())
 
     @pytest.mark.parametrize(
@@ -255,9 +285,14 @@ class TestQuizTable:
             ),
         ],
     )    
-
     def test_create_quiz(self, create_quiz, name, description, questions):
-        quiz = create_quiz(
+        """ Test case to create a new quiz.
+        Args:
+            create_quiz (function): Fixture to create a quiz.
+            name (str): Name of the quiz.
+            description (str): Description of the quiz.
+            questions (list): List of questions.    """
+        create_quiz(
             name=name,
             description=description,
             questions=questions,
@@ -274,7 +309,9 @@ class TestQuizTable:
         assert quiz_db.updated_at == self.time
 
         
-    def test_read_quiz(self, create_quiz):
+    def test_read_quiz(self, created_quiz):
+        """ Test case to read a quiz.
+        Args:   create_quiz (function): Fixture to create a quiz.   """
         quiz = Quiz.safe_get(hash_key="Test Quiz")
         assert quiz
         assert quiz.name == "Test Quiz"
@@ -288,6 +325,11 @@ class TestQuizTable:
         ],
     )
     def test_update_quiz(self, create_quiz, quiz_name, new_description):
+        """ Test case to update a quiz.
+        Args:
+            create_quiz (function): Fixture to create a quiz.
+            quiz_name (str): Name of the quiz to update.
+            new_description (str): New description for the quiz.    """
         quiz = Quiz.safe_get(hash_key=quiz_name)
         new_time = str(datetime.now())
         assert quiz
@@ -306,6 +348,10 @@ class TestQuizTable:
         ],
     )
     def test_delete_quiz(self, create_quiz, quiz_name):
+        """ Test case to delete a quiz.
+        Args:
+            create_quiz (function): Fixture to create a quiz.
+            quiz_name (str): Name of the quiz to delete.    """
         quiz = Quiz.safe_get(hash_key=quiz_name)
         assert quiz
         quiz.delete()
