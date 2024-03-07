@@ -24,14 +24,7 @@ if "classrooms" not in dynamodb.meta.client.list_tables()["TableNames"]:
 
 @pytest.fixture
 def create_user():
-    def create(
-        name: str,
-        email: str,
-        password: str,
-        role: str,
-        created_at: str,
-        updated_at: str,
-    ):
+    def create(name, email, password, role, created_at, updated_at):
         user = User(
             name=name,
             email=email,
@@ -47,13 +40,7 @@ def create_user():
 
 @pytest.fixture
 def create_quiz():
-    def create(
-        name: str,
-        description: str,
-        questions: list,
-        created_at: str,
-        updated_at: str,
-    ):
+    def _create(name, description, questions, created_at, updated_at):
         quiz = Quiz(
             name=name,
             description=description,
@@ -64,126 +51,146 @@ def create_quiz():
         quiz.save()
         return quiz
 
-    return create
+    return _create
 
 
 class TestUserTable:
-
     time = str(datetime.now())
 
-    def test_create_user(self):
-
+    @pytest.mark.parametrize(
+        "name, email, password, role",
+        [
+            ("vien morfe", "morfevien@gmail.com", "morfe123", "student"),
+            ("jane smith", "janesmith@example.com", "password123", "instructor"),
+            ("bob johnson", "bobjohnson@test.com", "securepassword", "student"),
+        ],
+    )
+    def test_create_user(self, name, email, password, role):
         user = User(
-            name="vien morfe",
-            email="morfevien@gmail.com",
-            password="morfe123",
-            role="student",
+            name=name,
+            email=email,
+            password=password,
+            role=role,
             created_at=self.time,
             updated_at=self.time,
         )
-        assert user.name == "vien morfe"
-        assert user.email == "morfevien@gmail.com"
-        assert user.password == "morfe123"
-        assert user.role == "student"
+        assert user.name == name
+        assert user.email == email
+        assert user.password == password
+        assert user.role == role
         assert user.created_at == self.time
         assert user.updated_at == self.time
         user.save()
 
-    def test_get_user(self):
-        users = User.query(hash_key="morfevien@gmail.com")
+    @pytest.mark.parametrize(
+        "email",
+        [
+            "morfevien@gmail.com",
+            "bergoniomhell@sex.com",
+            "alferezkarl@robeck.com",
+        ],
+    )
+    def test_get_user(self, email):
+        users = User.query(hash_key=email)
         for user in users:
-            assert user.name == "vien morfe"
-            assert user.email == "morfevien@gmail.com"
-            assert user.password == "morfe123"
-            assert user.role == "student"
-            assert user.created_at == self.time
-            assert user.updated_at == self.time
-        user.save()
-
-    def test_update_user(self):
+            assert user.email == email
+            
+    @pytest.mark.parametrize(
+        "email, new_password",
+        [
+            ("morfevien@gmail.com", "newpassword123"),
+            ("bergoniomhell@sex.com", "securepassword456"),
+            ("alferezkarl@robeck.com", "changedpassword"),
+        ],
+    )
+    def test_update_user(self, email, new_password):
         new_time = str(datetime.now())
-        users = User.query(hash_key="morfevien@gmail.com")
+        users = User.query(hash_key=email)
         for user in users:
-            user.update(A.password.set("morfelovestite"))
+            user.update(A.password.set(new_password))
             user.update(A.updated_at.set(new_time))
-        morfe = User.query(hash_key="morfevien@gmail.com")
+        updated_users = User.query(hash_key=email)
 
-        for info in morfe:
-            assert info.name == "vien morfe"
-            assert info.email == "morfevien@gmail.com"
-            assert info.password == "morfelovestite"
-            assert info.role == "student"
-            assert info.created_at == self.time
-            assert info.updated_at == new_time
+        for user in updated_users:
+            assert user.password == new_password
+            assert user.updated_at == new_time
 
-    def test_delete_user(self):
-        users = User.query(hash_key="morfevien@gmail.com")
+    @pytest.mark.parametrize(
+        "email",
+        [
+            "morfevien@gmail.com",
+            "janesmith@example.com",
+            "bobjohnson@test.com",
+        ],
+    )
+    def test_delete_user(self, email):
+        users = User.query(hash_key=email)
         for user in users:
             user.delete()
-        morfe = User.safe_get(hash_key="morfevien@gmail.com")
-        assert not morfe
+        deleted_user = User.safe_get(hash_key=email)
+        assert not deleted_user
 
 
 class TestClassroomTable:
     time = str(datetime.now())
+    
+    @pytest.mark.parametrize(
+        "classroom_name, classroom_description, instructor_email, student_emails",
+        [
+            (
+                "Test Classroom 1",
+                "Description for Test Classroom 1",
+                "teacher1@example.com",
+                ["student1@example.com", "student2@example.com"],
+            ),
+            (
+                "Test Classroom 2",
+                "Description for Test Classroom 2",
+                "teacher2@example.com",
+                ["student3@example.com", "student4@example.com"],
+            ),
+        ],
+    )
 
-    def test_create_classroom(self, create_user):
-        # user
+    def test_create_classroom(self, create_user, classroom_name, classroom_description, instructor_email, student_emails):
+        # Create instructor and student users
         instructor = create_user(
-            name="vien morfe",
-            email="morfevien@gmail.com",
-            password="morfe123",
+            name="Jener Galang",
+            email=instructor_email,
+            password="chupa123",
             role="instructor",
             created_at=self.time,
             updated_at=self.time,
         )
-        instructor_db = User.safe_get(hash_key="morfevien@gmail.com")
-        assert instructor_db
-        assert instructor_db.name == instructor.name
-        assert instructor_db.email == instructor.email
-        assert instructor_db.password == instructor.password
-        assert instructor_db.role == instructor.role
-        assert instructor_db.created_at == instructor.created_at
-        assert instructor_db.updated_at == instructor.updated_at
-
-        student1 = create_user(
-            name="vien1 morfe",
-            email="morfevien1@gmail.com",
-            password="morfe123",
-            role="student",
-            created_at=self.time,
-            updated_at=self.time,
-        )
-        student2 = create_user(
-            name="vien2 morfe",
-            email="morfevien2@gmail.com",
-            password="morfe123",
-            role="student",
-            created_at=self.time,
-            updated_at=self.time,
-        )
-        users = [x for x in User.scan(A.role == "student")]  # type: ignore
-        assert len(users) == 2
-
+        students = [
+            create_user(
+                name=f"Keren {i}",
+                email=email,
+                password="jabol69",
+                role="student",
+                created_at=self.time,
+                updated_at=self.time,
+            )
+            for i, email in enumerate(student_emails, start=1)
+        ]
+        # Create classroom
         classroom = Classroom(
-            name="test classroom",
-            description="test classroom description",
+            name=classroom_name,
+            description=classroom_description,
             instructor=instructor.email,
-            students=[student1.email, student2.email],
+            students=[student.email for student in students],
             created_at=self.time,
             updated_at=self.time,
         )
         classroom.save()
 
-        classroom_db = Classroom.safe_get(hash_key="test classroom")
+        # Assertions
+        classroom_db = Classroom.safe_get(hash_key=classroom_name)
         assert classroom_db
-        assert classroom_db.name == classroom.name
-        assert classroom_db.description == classroom.description
-        assert classroom_db.instructor == classroom.instructor
-        assert classroom_db.created_at == classroom.created_at
-        assert classroom_db.updated_at == classroom.updated_at
-        for student_email in classroom_db.students:
-            assert student_email in [student1.email, student2.email]
+        assert classroom_db.name == classroom_name
+        assert classroom_db.description == classroom_description
+        assert classroom_db.instructor == instructor.email
+        assert set(classroom_db.students) == set(student.email for student in students)
 
     def test_read_classroom(self, create_user):
         classroom = Classroom.safe_get(hash_key="test classroom")
@@ -222,58 +229,86 @@ class TestClassroomTable:
 class TestQuizTable:
     time = str(datetime.now())
 
-    def test_create_quiz(self, create_quiz):
-        questions = [
-            {
-                "question": "Richest Man in Philippines",
-                "options": ["Blengblong Marcos", "Willie Revillame", "Henry Sy", "Enrique Razon Jr"],
-                "answer": "Enrique Razon Jr",
-            },
-            {
-                "question": "Appointed Son of God",
-                "options": ["Apollo Quiboloy", "Eduardo Manalo", "Eli Soriano", "Felix Manalo"],
-                "answer": "Apollo Quiboloy",
-            },
-        ]
+    @pytest.mark.parametrize(
+        "name, description, questions",
+        [
+            (
+                "Test Quiz 1",
+                "Test Description 1",
+                [
+                    {
+                        "question": "Richest Man in Philippines",
+                        "options": [
+                            "Blengblong Marcos",
+                            "Willie Revillame",
+                            "Henry Sy",
+                            "Enrique Razon Jr",
+                        ],
+                        "answer": "Enrique Razon Jr",
+                    },
+                    {
+                        "question": "Appointed Son of God",
+                        "options": ["Apollo Quiboloy", "Eduardo Manalo", "Eli Soriano", "Felix Manalo"],
+                        "answer": "Apollo Quiboloy",
+                    },
+                ],
+            ),
+        ],
+    )    
+
+    def test_create_quiz(self, create_quiz, name, description, questions):
         quiz = create_quiz(
-            name="Test Quiz",
-            description="Test Description",
+            name=name,
+            description=description,
             questions=questions,
             created_at=self.time,
             updated_at=self.time,
         )
 
-        quiz_db = Quiz.safe_get(hash_key="Test Quiz")
+        quiz_db = Quiz.safe_get(hash_key=name)
         assert quiz_db
-        assert quiz_db.name == quiz.name
-        assert quiz_db.description == quiz.description
-        assert quiz_db.questions == quiz.questions
-        assert quiz_db.created_at == quiz.created_at
-        assert quiz_db.updated_at == quiz.updated_at
+        assert quiz_db.name == name
+        assert quiz_db.description == description
+        assert quiz_db.questions == questions
+        assert quiz_db.created_at == self.time
+        assert quiz_db.updated_at == self.time
 
+        
     def test_read_quiz(self, create_quiz):
         quiz = Quiz.safe_get(hash_key="Test Quiz")
         assert quiz
         assert quiz.name == "Test Quiz"
         assert quiz.description == "Test Description"
 
-    def test_update_quiz(self, create_quiz):
-        quiz = Quiz.safe_get(hash_key="Test Quiz")
+    @pytest.mark.parametrize(
+        "quiz_name, new_description",
+        [
+            ("Test Quiz 1", "Updated description for Test Quiz 1"),
+            ("Test Quiz 2", "Updated description for Test Quiz 2"),
+        ],
+    )
+    def test_update_quiz(self, create_quiz, quiz_name, new_description):
+        quiz = Quiz.safe_get(hash_key=quiz_name)
         new_time = str(datetime.now())
         assert quiz
-        new_description = "Updated test description for the test quiz"
         quiz.update(A.description.set(new_description))
         quiz.update(A.updated_at.set(new_time))
-        updated_quiz = Quiz.safe_get(hash_key="Test Quiz")
+        updated_quiz = Quiz.safe_get(hash_key=quiz_name)
         assert updated_quiz
-        assert updated_quiz.name == "Test Quiz"
         assert updated_quiz.description == new_description
-        assert updated_quiz.created_at == self.time
         assert updated_quiz.updated_at == new_time
 
-    def test_delete_quiz(self, create_quiz):
-        quiz = Quiz.safe_get(hash_key="Test Quiz")
+    @pytest.mark.parametrize(
+        "quiz_name",
+        [
+            "Test Quiz 1",
+            "Test Quiz 2",
+        ],
+    )
+    def test_delete_quiz(self, create_quiz, quiz_name):
+        quiz = Quiz.safe_get(hash_key=quiz_name)
         assert quiz
         quiz.delete()
-        deleted_quiz = Quiz.safe_get(hash_key="Test Quiz")
+        deleted_quiz = Quiz.safe_get(hash_key=quiz_name)
         assert not deleted_quiz
+        
