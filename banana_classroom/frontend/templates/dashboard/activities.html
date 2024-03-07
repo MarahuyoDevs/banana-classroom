@@ -1,0 +1,20 @@
+{% extends 'dashboard/template.html' %}
+{% block page %}
+    <section class="space-y-2">
+        <span class="text-xl font-bold">Activities</span>
+        <ul class="space-y-2">
+            {% for x in range(5) %}
+            <li class="flex flex-col gap-4 w-full border p-4 rounded-md">
+                <div class="flex gap-4 items-center">
+                    <div class="skeleton w-8 h-8 rounded-full shrink-0"></div>
+                    <div class="flex flex-col gap-4">
+                    <div class="skeleton h-4 w-10"></div>
+                    <div class="skeleton h-4 w-28"></div>
+                    </div>
+                </div>
+                <div class="skeleton h-16 w-full"></div>
+            </li>
+            {% endfor %}
+        </ul>
+    </section>
+{% endblock %}

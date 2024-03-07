@@ -46,12 +46,12 @@
                 <input type="checkbox" checked="checked" class="checkbox" />
             </label>
         </div>
-        <a href="/signin?user_type={{request.query_params['user_type']}}" class="label-text underline py-2 px-1">Already have an account?</a> 
+        <a href="/signin/?user_type={{request.query_params['user_type']}}" class="label-text underline py-2 px-1">Already have an account?</a> 
         <button class="btn btn-primary btn-block" type="submit">Sign Up</button>
         {% if request.query_params['user_type'] == 'student' %}
-            <a href="/signup?user_type=instructor" class="btn btn-outline btn-secondary btn-block">Switch to Student</a>
+            <a href="/signup/?user_type=instructor" class="btn btn-outline btn-secondary btn-block">Switch to Instructor</a>
         {% elif request.query_params['user_type'] == 'instructor' %}
-            <a href="/signup?user_type=student" class="btn btn-outline btn-secondary btn-block">Switch to Instructor</a>
+            <a href="/signup/?user_type=student" class="btn btn-outline btn-secondary btn-block">Switch to Student</a>
         {% endif %}
     </form>
 </main>

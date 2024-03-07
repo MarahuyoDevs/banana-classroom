@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="drawer">
+    <input id="my-drawer" type="checkbox" class="drawer-toggle" />
+    <main class="drawer-content">
+        <header>
+            <nav class="navbar p-4">
+                <span class="navbar-start">
+                    <label for="my-drawer" class="btn btn-ghost drawer-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+                        </svg>
+                    </label>
+                </span>
+                <a href="/" class="navbar-center">Banana Classroom</a>
+                <span class="navbar-end">
+                    <button class="btn btn-ghost drawer-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-file-person-fill" viewBox="0 0 16 16">
+                            <path d="M12 0H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2m-1 7a3 3 0 1 1-6 0 3 3 0 0 1 6 0m-3 4c2.623 0 4.146.826 5 1.755V14a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-1.245C3.854 11.825 5.377 11 8 11"/>
+                        </svg>
+                    </button>
+                </span>
+            </nav>
+        </header>
+        <article class="p-4">
+            {% block page %}
+            {% endblock %}
+        </article>
+    </main>
+    <aside class="drawer-side">
+        <label for="my-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
+        <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
+            <!-- Sidebar content here -->
+            <li><a>Sidebar Item 1</a></li>
+            <li><a>Sidebar Item 2</a></li>
+        
+        </ul>
+    </aside>
+</div>
+{% endblock %}

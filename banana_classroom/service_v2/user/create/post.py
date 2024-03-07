@@ -29,7 +29,8 @@ async def endpoint(body: BodyDict, user_type: QueryStr):
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Passwords do not match")
     if user_type not in ["student", "instructor"]:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid user type")
-
+    if "role" not in body:
+        body["role"] = user_type
     user = User(
         **body,
         created_at=str(datetime.now()),
