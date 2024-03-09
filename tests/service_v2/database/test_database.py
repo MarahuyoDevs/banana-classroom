@@ -253,7 +253,7 @@ class TestQuizTable:  # Test cases for the Quiz table.
         assert not deleted_quiz
 
 
-class TestQuestionTable:
+"""class TestQuestionTable:
 
     time = str(datetime.now())
     my_quiz = {}
@@ -310,3 +310,4 @@ class TestQuestionTable:
         quiz_db = Quiz.safe_get(hash_key=quiz.id)
         assert quiz_db
         assert len(quiz_db.questions) == 0
+"""

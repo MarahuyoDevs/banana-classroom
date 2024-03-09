@@ -43,6 +43,7 @@ class Question(Dyntastic):
     quiz_id: str
     type: str
     text: str
+    index: int
     options: list[str] = []
     answer: str
     created_at: str
