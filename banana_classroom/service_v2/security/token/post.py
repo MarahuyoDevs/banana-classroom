@@ -20,4 +20,5 @@ async def endpoint(body: BodyDict):
         headers={"hx-redirect": "/dashboard/activities/"},
     )
     response.set_cookie("authorization", user.email, httponly=True, samesite="strict")
+    response.set_cookie("user_type", user.role, httponly=True, samesite="strict")
     return response

@@ -6,4 +6,4 @@ from banana_classroom.frontend.app import template
 
 @processor()
 async def page(request: Request):
-    return template.TemplateResponse(request, "dashboard/classroom.html")
+    return template.TemplateResponse(request, "dashboard/forms/classroom_create.html")

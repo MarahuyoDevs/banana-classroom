@@ -1,0 +1,16 @@
+{% extends 'dashboard/template.html' %}
+{% block page %}
+    {% if request.cookies.get("user_type") == "student" %}
+    <section>
+        {% for x in range(5) %}
+        
+        {% endfor %}
+    </section>
+    {% elif request.cookies.get("user_type") == "instructor" %}
+    <section>
+        {% for x in range(5) %}
+            aassd
+        {% endfor %}
+    </section>
+    {% endif %}
+{% endblock %}

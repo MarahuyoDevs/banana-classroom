@@ -1,0 +1,17 @@
+{% extends 'dashboard/template.html' %}
+{% block page %}
+<section class="space-y-5">
+<h1 class="text-2xl font-bold">Question 1</h1>
+<p class="font-light">Lorem ipsum dolor sit amet consectetur adipisicing elit. Non, recusandae fuga? Amet nihil ut animi, quos sed facilis quis porro libero voluptas! Maxime voluptatibus amet labore voluptatem ab, explicabo aperiam!</p>
+<form class="space-y-5" action="">
+    <label class="flex flex-col gap-5" for="">
+        <span class="text-xl font-bold">Your answer</span>
+        <input class="input input-block input-bordered" placeholder="Enter Your Answer" required type="text" name="" id="">
+    </label>
+    <div class="flex justify-between items-center">
+        <button class="btn btn-outline">Previews</button>
+        <button class="btn btn-primary">Next</button>
+    </div>
+</form>
+</section>
+{% endblock %}
