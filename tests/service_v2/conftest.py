@@ -85,6 +85,7 @@ def create_question():
             type=random.choice(["multiple_choice", "true_false"]),
             text=fake.paragraph(),
             answer=fake.text(),
+            index=random.randint(0, 10),
             created_at=created_at,
             updated_at=updated_at,
         )

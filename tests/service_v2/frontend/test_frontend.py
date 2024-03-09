@@ -21,7 +21,7 @@ class TestFrontEnd:
         assert response.status_code == 200
 
     def test_dashboard_quiz(self, service_v2_client: TestClient):
-        response = service_v2_client.get("/dashboard/quiz")
+        response = service_v2_client.get("/dashboard/quiz/start")
         assert response.status_code == 200
 
     def test_dashboard_user(self, service_v2_client: TestClient):
