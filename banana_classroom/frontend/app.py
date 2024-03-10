@@ -1,10 +1,9 @@
 import os
-from pypox.application import PypoxHTMX
+from pypox.application import Pypox
+from pypox.router import HTTPRouter
 from starlette.templating import Jinja2Templates
 from starlette.exceptions import HTTPException
-from starlette.middleware.base import BaseHTTPMiddleware
-from starlette.middleware import Middleware
 
 template = Jinja2Templates(os.path.dirname(__file__) + "/templates/")
 
-frontend_app = PypoxHTMX(os.path.dirname(__file__) + "/routes")
+frontend_app = Pypox([HTTPRouter(os.path.dirname(__file__) + "/routes")])

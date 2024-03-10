@@ -1,1 +1,17 @@
 {% extends 'dashboard/template.html' %}
+{% block page %}
+    <form hx-post="/dashboard/classroom/create" hx-ext="json-enc" class="flex flex-col gap-5" hx-post="/dashboard/quiz/create" hx-ext="json-enc">
+        <label class="flex flex-col gap-5" for="">
+            <span class="text-xl font-bold">Classroom Title</span>
+            <input name="name" class="input input-block input-bordered" placeholder="Enter Title" required type="text" name="" id="">
+        </label>
+        <label class="flex flex-col gap-5" for="">
+            <span class="text-xl font-bold">Classroom Description</span>
+            <textarea required name="description" class="textarea textarea-bordered" placeholder="Enter some description" rows="3"></textarea>
+        </label>
+        <div class="flex justify-between items-center">
+            <a href="/dashboard/activities/" type="button" class="btn btn-error">Cancel</a>
+            <button type="submit" class="btn btn-success">Publish</button>
+        </div>
+    </form>
+{% endblock %}

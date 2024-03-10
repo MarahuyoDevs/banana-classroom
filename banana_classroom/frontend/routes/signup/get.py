@@ -1,5 +1,5 @@
 from pypox.processing.base import processor
-from starlette.responses import PlainTextResponse
+from starlette.responses import PlainTextResponse, RedirectResponse
 from starlette.requests import Request
 from banana_classroom.frontend.app import template
 from httpx import AsyncClient, ASGITransport
@@ -8,5 +8,7 @@ from starlette.testclient import TestClient
 
 
 @processor()
-async def page(request: Request):
+async def endpoint(request: Request):
+    if request.cookies.get("session") is not None:
+        return RedirectResponse("/dashboard/activities/")
     return template.TemplateResponse(request, "signup.html")

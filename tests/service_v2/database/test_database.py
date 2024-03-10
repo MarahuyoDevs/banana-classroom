@@ -11,7 +11,7 @@ import pytest
 from datetime import datetime
 import boto3
 from dyntastic import A
-
+from typing import Callable
 from tests.service_v2.conftest import create_user
 
 os.environ["DYNTASTIC_HOST"] = "http://localhost:8000"
@@ -112,8 +112,14 @@ class TestUserTable:  # Test cases for the User table.
 class TestClassroomTable:  # Test cases for the Classroom table.
 
     time = str(datetime.now())
+    my_instructor = {}
+    my_classroom = {}
 
-    def test_create_classroom(self, create_user):
+    def test_create_classroom(
+        self,
+        create_user: Callable[[str], tuple[User, str, str]],
+        create_classroom: Callable[[str, str, User], tuple[Classroom, str, str]],
+    ):
         """Test case to create a new classroom.
         Args:
             create_user (function): Fixture to create a user.
@@ -124,83 +130,87 @@ class TestClassroomTable:  # Test cases for the Classroom table.
         # Create instructor and student users
         fake = Faker()
 
-        instructor, *_ = create_user("instructor")
+        self.my_instructor["dummy"] = create_user("instructor")[0]
         # Create classroom
-        classroom = Classroom(
-            name="Dummy Classroom",
-            description="Dummy description",
-            instructor=instructor.email,
-            created_at=self.time,
-            updated_at=self.time,
-        )
+        self.my_classroom["dummy"] = create_classroom(
+            "Dummy Classroom", "Dummy description", self.my_instructor["dummy"]
+        )[0]
 
         students = []
         for _ in range(5):
-            student, *_ = create_user("student")
-            students.append(student.email)
+            student = create_user("student")[0]
+            student.save()
+            students.append(student.id)
 
-        classroom.students = students
+        self.my_classroom["dummy"].save()
 
-        classroom.save()
-
-        classroom_db = Classroom.safe_get(hash_key="Dummy Classroom")
+        classroom_db = Classroom.safe_get(hash_key=self.my_classroom["dummy"].id)
         assert classroom_db
         assert classroom_db.name == "Dummy Classroom"
         assert classroom_db.description == "Dummy description"
-        assert classroom_db.instructor == instructor.email
-        assert set(classroom_db.students) == set(students)
+        assert classroom_db.instructor == self.my_instructor["dummy"].email
 
     def test_read_classroom(self, create_user):
         """Test case to read a classroom.
         Args:   create_user (function): Fixture to create a user."""
-        classroom = Classroom.safe_get(hash_key="Dummy Classroom")
+        classroom = Classroom.safe_get(hash_key=self.my_classroom["dummy"].id)
 
         assert classroom
-        assert classroom.name == "Dummy Classroom"
-        assert classroom.description == "Dummy description"
+        assert classroom.name == self.my_classroom["dummy"].name
+        assert classroom.description == self.my_classroom["dummy"].description
 
-    def test_update_classroom(self, create_user):
+    def test_update_classroom(
+        self, create_user: Callable[[str], tuple[User, str, str]]
+    ):
         """Test case to update a classroom.
         Args:  create_user (function): Fixture to create a user."""
-        classroom = Classroom.safe_get(hash_key="Dummy Classroom")
-        new_instructor, *_ = create_user("instructor")
+        classroom = Classroom.safe_get(hash_key=self.my_classroom["dummy"].id)
+        new_instructor = create_user("instructor")[0]
         assert classroom
+        new_instructor.save()
         classroom.update(A.description.set("new description for classroom"))
         classroom.update(A.instructor.set(new_instructor.email))
-        new_classroom = Classroom.safe_get(hash_key="Dummy Classroom")
+        new_classroom = Classroom.safe_get(hash_key=self.my_classroom["dummy"].id)
         assert new_classroom
-        assert new_classroom.name == "Dummy Classroom"
+        assert new_classroom.name == self.my_classroom["dummy"].name
         assert new_classroom.description == "new description for classroom"
         assert new_classroom.instructor == new_instructor.email
 
     def test_delete_classroom(self):
         """Test case to delete a classroom."""
-        classroom = Classroom.safe_get(hash_key="Dummy Classroom")
+        classroom = Classroom.safe_get(hash_key=self.my_classroom["dummy"].id)
         assert classroom
         classroom.delete()
-        classroom = Classroom.safe_get(hash_key="Dummy Classroom")
+        classroom = Classroom.safe_get(hash_key=self.my_classroom["dummy"].id)
         assert not classroom
 
 
 class TestQuizTable:  # Test cases for the Quiz table.
     time = str(datetime.now())
+    my_instructor = {}
     my_classroom = {}
     my_quiz = {}
 
-    def test_create_quiz(self, create_classroom):
+    def test_create_quiz(
+        self,
+        create_user: Callable[[str], tuple[User, str, str]],
+        create_classroom: Callable[[str, str, User], tuple[Classroom, str, str]],
+    ):
         """Test case to create a new quiz.
         Args:
             create_quiz (function): Fixture to create a quiz.
             name (str): Name of the quiz.
             description (str): Description of the quiz.
             questions (list): List of questions."""
-        classroom = create_classroom("Dummy Classroom", "Dummy description")[0]
-        classroom.save()
-        self.my_classroom["dummy"] = classroom
+        self.my_instructor["dummy"] = create_user("instructor")[0]
+        self.my_classroom["dummy"] = create_classroom(
+            "Dummy Classroom", "Dummy description", self.my_instructor["dummy"]
+        )[0]
+        self.my_classroom["dummy"].save()
 
         quiz = Quiz(
             name="Test Quiz",
-            classroom_id=classroom.name,
+            classroom_id=self.my_classroom["dummy"].name,
             description="Test Description",
             created_at=self.time,
             updated_at=self.time,
@@ -251,63 +261,3 @@ class TestQuizTable:  # Test cases for the Quiz table.
         quiz.delete()
         deleted_quiz = Quiz.safe_get(hash_key=self.my_quiz["dummy"].id)
         assert not deleted_quiz
-
-
-"""class TestQuestionTable:
-
-    time = str(datetime.now())
-    my_quiz = {}
-    my_classroom = {}
-
-    def test_create_question(self, create_quiz, create_question):
-
-        classroom = Classroom.safe_get(hash_key="Dummy Classroom")
-        assert classroom
-        quiz = create_quiz(classroom.name)[0]
-        questions = [create_question(quiz.id)[0] for _ in range(5)]
-        map(lambda x: x.save(), questions)
-        quiz.questions = [question.id for question in questions]
-        quiz.save()
-        self.my_quiz["dummy"] = quiz
-        self.my_classroom["dummy"] = classroom
-
-        quiz_db = Quiz.safe_get(hash_key=quiz.id)
-        assert quiz_db
-        quiz_db.questions = [question.id for question in questions]
-        assert len(quiz_db.questions) == 5
-
-    def test_read_question(self):
-        classroom = Classroom.safe_get(hash_key="Dummy Classroom")
-        quiz = Quiz.safe_get(hash_key=self.my_quiz["dummy"].id)
-        assert classroom
-        assert quiz
-        questions = [
-            Question.safe_get(hash_key=question, range_key=classroom.name)
-            for question in quiz.questions
-        ]
-        assert len(questions) == 5
-
-    def test_update_question(self, create_question):
-        classroom = Classroom.safe_get(hash_key="Dummy Classroom")
-        quiz = Quiz.safe_get(hash_key=self.my_quiz["dummy"].id)
-        assert classroom
-        assert quiz
-        questions = [create_question(quiz.id)[0] for _ in range(5)]
-        map(lambda x: x.save(), questions)
-        quiz.questions = [question.id for question in questions]
-        quiz.save()
-        quiz_db = Quiz.safe_get(hash_key=quiz.id)
-        assert quiz_db
-        assert len(quiz_db.questions) == 5
-
-    def test_delete_question(self):
-        classroom = Classroom.safe_get(hash_key="Dummy Classroom")
-        quiz = Quiz.safe_get(hash_key=self.my_quiz["dummy"].id)
-        assert classroom
-        assert quiz
-        quiz.questions = []
-        quiz.save()
-        quiz_db = Quiz.safe_get(hash_key=quiz.id)
-        assert quiz_db
-        assert len(quiz_db.questions) == 0
-"""

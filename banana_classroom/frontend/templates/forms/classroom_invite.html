@@ -1,0 +1,13 @@
+{% extends 'dashboard/template.html' %}
+{% block page %}
+    <form hx-post="/dashboard/classroom/join" hx-ext="json-enc" class="pt-48 flex flex-col justify-center items-center gap-5 w-full" hx-post="/dashboard/quiz/create" hx-ext="json-enc">
+        <label class="flex flex-col gap-5 w-full" for="">
+            <span class="text-xl font-bold">Classroom Id</span>
+            <input name="class_id" class="input input-block input-bordered" placeholder="Enter the classroom id" required type="text" name="" id="">
+        </label>
+        <div class="flex justify-between items-center w-full">
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-primary">Pasok <md-radio name=""></md-radio></button>
+        </div>
+    </form>
+{% endblock %}

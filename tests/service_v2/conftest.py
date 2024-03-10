@@ -20,6 +20,26 @@ def service_v2_client() -> TestClient:
     return TestClient(app)
 
 
+@pytest.fixture()
+def service_v2_authenticated_client() -> Callable[[User], TestClient]:
+
+    def decorator(user: User) -> TestClient:
+        client = TestClient(app)
+        # login the user
+        response = client.post(
+            "/api/v1/security/token",
+            json={"email": user.email, "password": user.password},
+        )
+        assert response.status_code == 200
+        client.headers.update(
+            {"Authorization": f"Basic {response.json()['access_token']}"}
+        )
+
+        return client
+
+    return decorator
+
+
 @pytest.fixture
 def create_user():
     """Fixture to create a user in the database.
@@ -33,7 +53,7 @@ def create_user():
         user = User(
             name=fake.name(),
             email=fake.email(),
-            password=fake.text(),
+            password="mypassword",
             role=role,
             created_at=created_at,
             updated_at=updated_at,
@@ -44,7 +64,9 @@ def create_user():
 
 
 @pytest.fixture
-def create_quiz() -> Callable[[str], tuple[Quiz, str, str]]:
+def create_quiz(
+    create_question: Callable[[str], tuple[Question, str, str]]
+) -> Callable[[str], tuple[Quiz, str, str]]:
     """Fixture to create a quiz in the database.
     Returns a function that takes name, description, questions, created_at, and updated_at as arguments and returns a Quiz object.
     """
@@ -55,6 +77,7 @@ def create_quiz() -> Callable[[str], tuple[Quiz, str, str]]:
         fake = Faker()
         created_at = str(datetime.now())
         updated_at = str(datetime.now())
+
         quiz = Quiz(
             name=fake.name(),
             classroom_id=classroom_id,
@@ -62,6 +85,8 @@ def create_quiz() -> Callable[[str], tuple[Quiz, str, str]]:
             created_at=created_at,
             updated_at=updated_at,
         )
+
+        quiz.questions = [create_question(quiz.id)[0] for _ in range(5)]
 
         return quiz, created_at, updated_at
 
@@ -95,27 +120,22 @@ def create_question():
 
 
 @pytest.fixture()
-def create_classroom(create_user):
+def create_classroom():
     """Fixture to create a classroom in the database.
     Returns a function that takes name, description, instructor, students, quizzes, created_at, and updated_at as arguments and returns a Classroom object.
     """
 
     def _create(
-        name: str,
-        description: str,
+        name: str, description: str, instructor: User
     ) -> tuple[Classroom, str, str]:
 
-        instructor = create_user(role="instructor")[0]
-        instructor.save()
-        students = [create_user(role="student")[0] for _ in range(5)]
-        map(lambda x: x[0].save(), students)
         created_at = str(datetime.now())
         updated_at = str(datetime.now())
         classroom = Classroom(
             name=name,
             description=description,
             instructor=instructor.email,
-            students=[student.email for student in students],
+            students=[],
             created_at=created_at,
             updated_at=updated_at,
         )
@@ -143,5 +163,26 @@ def execute_before_any_test():
     if "quizzes" not in dynamodb.meta.client.list_tables()["TableNames"]:
         Quiz.create_table()
 
-    if "questions" not in dynamodb.meta.client.list_tables()["TableNames"]:
-        Question.create_table()
+
+@pytest.fixture
+def create_authenticated_user(
+    service_v2_client: TestClient,
+    create_user: Callable[[str], tuple[User, str, str]],
+):
+    """Fixture to create an authenticated user in the database.
+    Returns a function that takes name, email, password, role, created_at, and updated_at as arguments and returns a User object.
+    """
+
+    def create(role: str) -> User:
+        user = create_user(role)[0]
+        response = service_v2_client.post(
+            f"/api/v1/user/create?user_type={user.role}",
+            json={
+                **user.model_dump(exclude={"created_at", "updated_at"}),
+                "confirm_password": user.password,
+            },
+        )
+        assert response.status_code == 201
+        return user
+
+    return create

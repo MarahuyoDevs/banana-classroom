@@ -1,24 +1,30 @@
 from starlette.exceptions import HTTPException
-from starlette.responses import PlainTextResponse
+from starlette.responses import PlainTextResponse, JSONResponse
 from starlette import status
 from banana_classroom.database.NOSQL.banana_classroom import User
 from pypox.processing.base import processor
 from pypox._types import BodyDict
 from passlib.hash import bcrypt
+from base64 import b64encode
+from starlette.requests import Request
 
 
 @processor()
-async def endpoint(body: BodyDict):
+async def endpoint(request: Request):
+    body = await request.json()
     user = User.safe_get(hash_key=body["email"])
     if not user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
     if not bcrypt.verify(body["password"], user.password):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
-    response = PlainTextResponse(
-        "Login successful",
+    print(user)
+    return JSONResponse(
+        {
+            "access_token": b64encode(
+                f"{user.email}:{user.password}".encode()
+            ).decode(),
+            "token_type": "basic",
+            "role": user.role,
+        },
         status_code=200,
-        headers={"hx-redirect": "/dashboard/activities/"},
     )
-    response.set_cookie("authorization", user.email, httponly=True, samesite="strict")
-    response.set_cookie("user_type", user.role, httponly=True, samesite="strict")
-    return response

@@ -3,25 +3,15 @@
     <section>
         <form action=""></form>
     </section>
-    {% if request.cookies.get("user_type") == "student" %}
     <section>
         {% for x in range(5) %}
         
         {% endfor %}
     </section>
-    {% elif request.cookies.get("user_type") == "instructor" %}
     <section class="space-y-5">
         <div class="flex justify-between items-center">
-            <h2 class="text-xl font-bold">Classroom name</h2>
+            <h2 class="text-xl font-bold">{{classroom.name}}</h2>
             <div class="flex items-center gap-5">
-                <div class="tooltip" data-tip="create quiz">
-                    <a href="/dashboard/quiz/create" class="btn btn-ghost">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-file-plus" viewBox="0 0 16 16">
-                        <path d="M8.5 6a.5.5 0 0 0-1 0v1.5H6a.5.5 0 0 0 0 1h1.5V10a.5.5 0 0 0 1 0V8.5H10a.5.5 0 0 0 0-1H8.5z"/>
-                        <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm10-1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1"/>
-                        </svg>
-                    </a>
-                </div>
                 <div class="tooltip" data-tip="Classroom Settings">
                 <button class="btn btn-ghost">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
@@ -32,12 +22,12 @@
                 </div>
             </div>
         </div>
-        <p class="text-lg font-light">Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas, suscipit laboriosam quo iure aut omnis similique dolorum commodi odio dicta dolore corrupti laudantium accusamus, exercitationem veritatis id, tempora amet praesentium?</p>
+        <p class="text-lg font-light">{{classroom.description}}</p>
         <div role="tablist" class="tabs tabs-lifted">
             <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Students" />
             <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
                 <ul class="menu rounded-box gap-5">
-                {% for x in range(5) %}
+                {% for student in classroom.students %}
                     <li>
                         <div class="flex gap-5">
                             <div class="avatar placeholder">
@@ -46,8 +36,7 @@
                                 </div>
                             </div> 
                             <div>
-                                <span>Student name</span>
-                                <p>Student Section</p>
+                                <span>{{student}}</span>
                             </div>
                         </div>
                     </li>
@@ -76,5 +65,4 @@
             </div>
         </div>
     </section>
-    {% endif %}
 {% endblock %}

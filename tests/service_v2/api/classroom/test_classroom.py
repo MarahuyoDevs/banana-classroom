@@ -1,29 +1,67 @@
+from typing import Callable
 from starlette.testclient import TestClient
-from banana_classroom.database.NOSQL.banana_classroom import Classroom
+from banana_classroom.database.NOSQL.banana_classroom import Classroom, User
+
 
 class TestClassroom:
-    def test_create_classroom(self, service_v2_client: TestClient,create_classroom:tuple[Classroom]):
-        classroom, *_ = create_classroom('Information Management','About Chupa')
-        response = service_v2_client.post(f"/api/v1/classroom/create", json=classroom.model_dump())
+
+    my_instructor = {}
+    my_classroom = {}
+
+    def test_create_classroom(
+        self,
+        service_v2_authenticated_client: Callable[[User], TestClient],
+        create_classroom: Callable[[str, str, User], tuple[Classroom]],
+        create_authenticated_user: Callable[[str], User],
+    ):
+
+        self.my_instructor.update({"dummy": create_authenticated_user("instructor")})
+
+        self.my_classroom["dummy"] = create_classroom(
+            "Information Management", "About Chupa", self.my_instructor["dummy"]
+        )[0]
+
+        response = service_v2_authenticated_client(self.my_instructor["dummy"]).post(
+            f"/api/v1/classroom/create", json=self.my_classroom["dummy"].model_dump()
+        )
+
         assert response.status_code == 201
         assert response.text == "Classroom created successfully"
 
-    def test_read_classroom(self, service_v2_client: TestClient):
-        response = service_v2_client.get(f"/api/v1/classroom/find?classroom_name=Information Management")
+        self.my_instructor["dummy"] = User.safe_get(
+            hash_key=self.my_instructor["dummy"].email
+        )
+        self.my_instructor["dummy"].password = "mypassword"  # type: ignore
+
+    def test_read_classroom(
+        self, service_v2_authenticated_client: Callable[[User], TestClient]
+    ):
+        response = service_v2_authenticated_client(self.my_instructor["dummy"]).get(
+            f"/api/v1/classroom/find/?id={self.my_instructor['dummy'].classrooms[0]}"
+        )
         assert response.status_code == 200
         data = response.json()
-        assert data['name'] == 'Information Management'
-        assert data['description'] == 'About Chupa'
-        
-    def test_update_classroom(self, service_v2_client: TestClient):
-        response = service_v2_client.put(f"/api/v1/classroom/update?classroom_name=Information Management",json={
-            "instructor": "Serverns",
-            "description": "About Database",
-        })
+        assert data["name"] == self.my_classroom["dummy"].name
+        assert data["description"] == self.my_classroom["dummy"].description
+
+    def test_update_classroom(
+        self, service_v2_authenticated_client: Callable[[User], TestClient]
+    ):
+        response = service_v2_authenticated_client(self.my_instructor["dummy"]).put(
+            f"/api/v1/classroom/update/?id={self.my_instructor['dummy'].classrooms[0]}",
+            json={
+                "instructor": "Serverns",
+                "description": "About Database",
+            },
+        )
         assert response.status_code == 202
         assert response.text == "Classroom updated successfully"
- 
-    def test_delete_classroom(self, service_v2_client: TestClient):
-        response = service_v2_client.delete(f"/api/v1/classroom/delete?classroom_name=Information Management")
+
+    def test_delete_classroom(
+        self, service_v2_authenticated_client: Callable[[User], TestClient]
+    ):
+        response = service_v2_authenticated_client(self.my_instructor["dummy"]).delete(
+            f"/api/v1/classroom/delete/?id={self.my_instructor['dummy'].classrooms[0]}"
+        )
         assert response.status_code == 204
         assert response.text == "Classroom Information Management deleted"

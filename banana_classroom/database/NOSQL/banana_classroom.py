@@ -14,6 +14,8 @@ class User(Dyntastic):
     email: str
     password: str  # hashed
     role: str  # student, teacher, admin
+    classrooms: list[str] = []  # classroom_id
+    quizzes: list[str] = []  # quiz_id
     created_at: str
     updated_at: str
 
@@ -21,7 +23,7 @@ class User(Dyntastic):
 class Classroom(Dyntastic):
 
     __table_name__ = "classrooms"
-    __hash_key__ = "name"
+    __hash_key__ = "id"
 
     id: str = Field(default_factory=lambda: str(uuid4()))
     name: str
@@ -33,11 +35,7 @@ class Classroom(Dyntastic):
     updated_at: str
 
 
-class Question(Dyntastic):
-
-    __table_name__ = "questions"
-    __hash_key__ = "id"
-    __range_key__ = "quiz_id"
+class Question(BaseModel):
 
     id: str = Field(default_factory=lambda: str(uuid4()))
     quiz_id: str
@@ -59,6 +57,6 @@ class Quiz(Dyntastic):
     classroom_id: str
     name: str
     description: str
-    questions: list[str] = []  # question_id
+    questions: list[Question] = []  # question obj
     created_at: str
     updated_at: str

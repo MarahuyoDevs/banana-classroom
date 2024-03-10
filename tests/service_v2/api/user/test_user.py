@@ -22,9 +22,11 @@ class TestUser:
         assert response.status_code == 201
         assert response.text == "User created successfully"
 
-    def test_read_user(self, service_v2_client: TestClient):
-        response = service_v2_client.get(
-            "/api/v1/user/me/", headers={"email": self.my_user["dummy"].email}
+    def test_read_user(
+        self, service_v2_authenticated_client: Callable[[User], TestClient]
+    ):
+        response = service_v2_authenticated_client(self.my_user["dummy"]).get(
+            "/api/v1/user/me/"
         )
         assert response.status_code == 200
         data = response.json()
@@ -33,10 +35,12 @@ class TestUser:
         assert data["role"] == self.my_user["dummy"].role
         assert "password" not in data
 
-    def test_update_user(self, service_v2_client: TestClient):
+    def test_update_user(
+        self, service_v2_authenticated_client: Callable[[User], TestClient]
+    ):
         fake = Faker()
         new_name = fake.name()
-        response = service_v2_client.put(
+        response = service_v2_authenticated_client(self.my_user["dummy"]).put(
             "/api/v1/user/me/",
             headers={"email": self.my_user["dummy"].email},
             json={"name": new_name},
@@ -48,8 +52,10 @@ class TestUser:
         assert data["role"] == self.my_user["dummy"].role
         assert "password" not in data
 
-    def test_delete_user(self, service_v2_client: TestClient):
-        response = service_v2_client.delete(
-            "/api/v1/user/me/", headers={"email": self.my_user["dummy"].email}
+    def test_delete_user(
+        self, service_v2_authenticated_client: Callable[[User], TestClient]
+    ):
+        response = service_v2_authenticated_client(self.my_user["dummy"]).delete(
+            "/api/v1/user/me/"
         )
         assert response.status_code == 204
