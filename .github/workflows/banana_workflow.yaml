@@ -1,0 +1,46 @@
+name: Build and Test Banana Classroom
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  DYNTASTIC_REGION: ap-southeast-1
+  DYNTASTIC_HOST: http://127.0.0.1:8000
+  #JWT_SECRET:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.12'
+        
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-poetry-${{ hashFiles('**/poetry.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-poetry-
+          
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install poetry
+        poetry install
+        
+    - name: Test with pytest
+      run: |
+        poetry run pytest
+        
+    - name: Start local server
+      run: |
+        poetry run uvicorn banana_classroom.service_v2.app:api_service --reload &
+        poetry run uvicorn banana_classroom.frontend.app:frontend_app --port 5000 --reload
