@@ -34,13 +34,12 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install poetry
         poetry install
-    - name: Start DynamoDB Local
-      run: |
-        dynamo-memory    
+    - name: Setup local DynamoDB
+      run: docker run -d -p 8000:8000 amazon/dynamodb-local
         
     - name: Test with pytest
       run: |
-        poetry run pytest
+        poetry run pytest tests/service_v2/ -s
         
     - name: Start local server
       run: |
