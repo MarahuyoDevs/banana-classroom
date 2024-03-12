@@ -1,13 +1,12 @@
-name: Build and Test Banana Classroom
+name: banana workflow
 
 on:
   push:
     branches:
       - master
-
 env:
   DYNTASTIC_REGION: ap-southeast-1
-  DYNTASTIC_HOST: http://127.0.0.1:8000
+  DYNTASTIC_HOST: http://localhost:8000
   #JWT_SECRET:
 
 jobs:
@@ -35,6 +34,9 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install poetry
         poetry install
+    - name: Start DynamoDB Local
+      run: |
+        dynamo-memory    
         
     - name: Test with pytest
       run: |
@@ -42,5 +44,6 @@ jobs:
         
     - name: Start local server
       run: |
+        poetry run uvicorn banana_classroom.app_v2:app --reload &
         poetry run uvicorn banana_classroom.service_v2.app:api_service --reload &
         poetry run uvicorn banana_classroom.frontend.app:frontend_app --port 8000 --reload
