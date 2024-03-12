@@ -8,6 +8,8 @@ env:
   DYNTASTIC_REGION: ap-southeast-1
   DYNTASTIC_HOST: http://localhost:8000
   #JWT_SECRET:
+  #AWS_ACCESS_KEY_ID:
+  #AWS_SECRET_ACCESS_KEY:
 
 jobs:
 
@@ -40,6 +42,9 @@ jobs:
     - name: Test with pytest
       run: |
         poetry run pytest tests/service_v2/ -s
+      shell: /usr/bin/bash -e {0}
+      env:
+        AWS_DEFAULT_REGION: ${{ env.DYNTASTIC_REGION }}
         
     - name: Start local server
       run: |
