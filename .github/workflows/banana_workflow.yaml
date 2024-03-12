@@ -3,7 +3,7 @@ name: Build and Test Banana Classroom
 on:
   push:
     branches:
-      - main
+      - master
 
 env:
   DYNTASTIC_REGION: ap-southeast-1
