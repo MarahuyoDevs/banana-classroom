@@ -22,7 +22,7 @@ class TestClassroom:
         )[0]
 
         response = service_v2_authenticated_client(self.my_instructor["dummy"]).post(
-            f"/classroom/create", json=self.my_classroom["dummy"].model_dump()
+            f"/classroom/create/", json=self.my_classroom["dummy"].model_dump()
         )
 
         assert response.status_code == 201

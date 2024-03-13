@@ -28,13 +28,13 @@ def service_v2_frontend() -> TestClient:  # type: ignore
 
 
 @pytest.fixture()
-def service_v2_authenticated_client() -> Callable[[User], TestClient]:
+def service_v2_authenticated_client(service_v2_client) -> Callable[[User], TestClient]:
 
     def decorator(user: User) -> TestClient:
-        client = TestClient(api_service)
+        client = service_v2_client
         # login the user
         response = client.post(
-            "/security/token/",
+            f"/security/token/?user_type={user.role}",
             json={"email": user.email, "password": user.password},
         )
         assert response.status_code == 200
