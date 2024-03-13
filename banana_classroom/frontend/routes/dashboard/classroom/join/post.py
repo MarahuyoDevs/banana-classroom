@@ -10,25 +10,17 @@ async def endpoint(request: Request):
 
     body = await request.json()
 
-    classroom = Classroom.safe_get(hash_key=body.get("class_id"))
+    response = request.state.backend.post(
+        f"/classroom/join/?class_id={body.get('class_id')}",
+        headers={"Authorization": f"Basic {request.cookies.get('session')}"},
+    )
 
-    if not classroom:
-        raise HTTPException(detail="Classroom not found", status_code=404)
-
-    email, password = b64decode(request.cookies.get("session", "")).decode().split(":")
-
-    user = User.safe_get(email)
-
-    if not user:
-        raise HTTPException(detail="Not user", status_code=404)
-
-    if user.role != "student":
-        raise HTTPException(detail="Must be student only", status_code=401)
-
-    classroom.update(A.students.append(user.email))
+    print(response.text)
 
     return PlainTextResponse(
         "Joined Classroom",
         status_code=201,
-        headers={"hx-redirect": f"/dashboard/classroom/find/?id={classroom.id}"},
+        headers={
+            "hx-redirect": f"/dashboard/classroom/find/?id={body.get('class_id')}"
+        },
     )

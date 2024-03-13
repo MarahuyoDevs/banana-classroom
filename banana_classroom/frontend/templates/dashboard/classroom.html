@@ -9,60 +9,90 @@
         {% endfor %}
     </section>
     <section class="space-y-5">
-        <div class="flex justify-between items-center">
-            <h2 class="text-xl font-bold">{{classroom.name}}</h2>
-            <div class="flex items-center gap-5">
-                <div class="tooltip" data-tip="Classroom Settings">
-                <button class="btn btn-ghost">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
-                        <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0"/>
-                        <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z"/>
-                    </svg>
-                </button>
+        {% if user %}
+            {% if user.role == 'instructor' %}
+            <a href="/dashboard/classroom/create/">create a classroom</a>
+            {% endif %}
+        {% endif %}
+        {% if classrooms %}
+        {% for classroom in classrooms %}
+        <div class="card w-full bg-base-100 border">
+            <div class="card-body flex-row gap-5 items-center">
+                <a href="/dashboard/classroom/find/?id={{classroom.id}}" class="btn btn-square btn-sm">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </a>
+                <div>
+                    <span class="text-xl font-bold">{{classroom.name}}</span>
+                    <p>{{classroom.description}}</p>
                 </div>
             </div>
         </div>
-        <p class="text-lg font-light">{{classroom.description}}</p>
-        <div role="tablist" class="tabs tabs-lifted">
-            <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Students" />
-            <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
-                <ul class="menu rounded-box gap-5">
-                {% for student in classroom.students %}
-                    <li>
-                        <div class="flex gap-5">
-                            <div class="avatar placeholder">
-                                <div class="bg-neutral text-neutral-content rounded-full w-12">
-                                    <span>S</span>
-                                </div>
-                            </div> 
-                            <div>
-                                <span>{{student}}</span>
-                            </div>
-                        </div>
-                    </li>
-                {% endfor %}
-                </ul>
+        {% endfor %}
+        {% elif classroom %}
+        <div class="">
+            <h1 class="text-2xl font-bold">{{classroom.name}}</h1>
+            <p class="text-lg font-light">{{classroom.description}}</p>
+            <div class="overflow-x-auto">
+            <div role="tablist" class="tabs tabs-bordered w-full">
+                <input type="radio" name="my_tabs_1" role="tab" class="tab w-full" aria-label="Students" />
+                {% if students %}
+                <table role="tabpanel" class="tab-content table">
+                    <!-- head -->
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- row 1 -->
+                    {% for student in students %}
+                    <tr>
+                        <th>{{student['id']}}</th>
+                        <td>{{student['name']}}</td>
+                        <td>{{student['email']}}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+                <input type="radio" name="my_tabs_1" role="tab" class="tab w-full" aria-label="Quizzes" />
+                {% if quizzes %}
+                <table role="tabpanel" class="tab-content table">
+                    <!-- head -->
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <!-- row 1 -->
+                    <tr>
+                        <th>1</th>
+                        <td>Cy Ganderton</td>
+                        <td>Quality Control Specialist</td>
+                    </tr>
+                    <!-- row 2 -->
+                    <tr>
+                        <th>2</th>
+                        <td>Hart Hagerty</td>
+                        <td>Desktop Support Technician</td>
+                    </tr>
+                    <!-- row 3 -->
+                    <tr>
+                        <th>3</th>
+                        <td>Brice Swyre</td>
+                        <td>Tax Accountant</td>
+                    </tr>
+                    </tbody>
+                </table>
+                {% endif %}
             </div>
-            <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Quizzes" checked />
-            <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
-                <ul class="menu rounded-box gap-5">
-                {% for x in range(5) %}
-                    <li>
-                        <div class="flex gap-5">
-                            <div class="avatar placeholder">
-                                <div class="bg-neutral text-neutral-content rounded-full w-12">
-                                    <span>Q</span>
-                                </div>
-                            </div> 
-                            <div>
-                                <span>Quiz name</span>
-                                <p>Classroom Name</p>
-                            </div>
-                        </div>
-                    </li>
-                {% endfor %}
-                </ul>
             </div>
         </div>
+        {% endif %}
     </section>
 {% endblock %}

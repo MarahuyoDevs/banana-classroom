@@ -23,11 +23,6 @@ async def endpoint(request: Request):
             status_code=status.HTTP_400_BAD_REQUEST, detail="id is required"
         )
 
-    if class_id not in request.user.classrooms:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Classroom not found"
-        )
-
     classroom = Classroom.safe_get(hash_key=request.query_params.get("id", ""))
     if not classroom:
         raise HTTPException(

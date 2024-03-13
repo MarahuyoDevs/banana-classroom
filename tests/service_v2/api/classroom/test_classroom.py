@@ -22,7 +22,7 @@ class TestClassroom:
         )[0]
 
         response = service_v2_authenticated_client(self.my_instructor["dummy"]).post(
-            f"/api/v1/classroom/create", json=self.my_classroom["dummy"].model_dump()
+            f"/classroom/create", json=self.my_classroom["dummy"].model_dump()
         )
 
         assert response.status_code == 201
@@ -37,7 +37,7 @@ class TestClassroom:
         self, service_v2_authenticated_client: Callable[[User], TestClient]
     ):
         response = service_v2_authenticated_client(self.my_instructor["dummy"]).get(
-            f"/api/v1/classroom/find/?id={self.my_instructor['dummy'].classrooms[0]}"
+            f"/classroom/find/?id={self.my_instructor['dummy'].classrooms[0]}"
         )
         assert response.status_code == 200
         data = response.json()
@@ -48,7 +48,7 @@ class TestClassroom:
         self, service_v2_authenticated_client: Callable[[User], TestClient]
     ):
         response = service_v2_authenticated_client(self.my_instructor["dummy"]).put(
-            f"/api/v1/classroom/update/?id={self.my_instructor['dummy'].classrooms[0]}",
+            f"/classroom/update/?id={self.my_instructor['dummy'].classrooms[0]}",
             json={
                 "instructor": "Serverns",
                 "description": "About Database",
@@ -61,7 +61,7 @@ class TestClassroom:
         self, service_v2_authenticated_client: Callable[[User], TestClient]
     ):
         response = service_v2_authenticated_client(self.my_instructor["dummy"]).delete(
-            f"/api/v1/classroom/delete/?id={self.my_instructor['dummy'].classrooms[0]}"
+            f"/classroom/delete/?id={self.my_instructor['dummy'].classrooms[0]}"
         )
         assert response.status_code == 204
         assert response.text == "Classroom Information Management deleted"

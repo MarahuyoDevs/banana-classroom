@@ -13,7 +13,7 @@ class TestUser:
         user, *_ = create_user("student")
         self.my_user["dummy"] = user
         response = service_v2_client.post(
-            f"/api/v1/user/create?user_type={user.role}",
+            f"/user/create?user_type={user.role}",
             json={
                 **user.model_dump(exclude={"created_at", "updated_at"}),
                 "confirm_password": user.password,
@@ -26,7 +26,7 @@ class TestUser:
         self, service_v2_authenticated_client: Callable[[User], TestClient]
     ):
         response = service_v2_authenticated_client(self.my_user["dummy"]).get(
-            "/api/v1/user/me/"
+            "/user/me/"
         )
         assert response.status_code == 200
         data = response.json()
@@ -41,7 +41,7 @@ class TestUser:
         fake = Faker()
         new_name = fake.name()
         response = service_v2_authenticated_client(self.my_user["dummy"]).put(
-            "/api/v1/user/me/",
+            "/user/me/",
             headers={"email": self.my_user["dummy"].email},
             json={"name": new_name},
         )
@@ -56,6 +56,6 @@ class TestUser:
         self, service_v2_authenticated_client: Callable[[User], TestClient]
     ):
         response = service_v2_authenticated_client(self.my_user["dummy"]).delete(
-            "/api/v1/user/me/"
+            "/user/me/"
         )
         assert response.status_code == 204

@@ -3,7 +3,7 @@
 <main id="main" class="flex flex-col justify-center items-center h-screen max-w-screen gap-2 px-4">
     <h1 class="text-2xl font-bold">Banana Classroom</h1>
     <span class="font-light">{{request.query_params['user_type'].capitalize()}} Registration</span>
-    <form class="space-y-2 w-full" hx-post="/api/v1/user/create?user_type={{request.query_params['user_type']}}" hx-ext="json-enc">
+    <form class="space-y-2 w-full" hx-post="/signup/?user_type={{request.query_params['user_type']}}" hx-ext="json-enc">
         <div class="space-y-2">
             <label for="">
                 Name

@@ -7,11 +7,9 @@ from starlette.authentication import (
     AuthCredentials,
     AuthenticationBackend,
     AuthenticationError,
-    SimpleUser,
 )
 
 from banana_classroom.database.NOSQL.banana_classroom import User
-from passlib.hash import bcrypt
 from base64 import b64decode
 
 

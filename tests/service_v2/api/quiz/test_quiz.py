@@ -27,7 +27,7 @@ class TestQuiz:
             }
         )
         response = service_v2_authenticated_client(self.my_instructor["dummy"]).post(
-            "/api/v1/classroom/create",
+            "/classroom/create",
             json=self.my_classroom["dummy"].model_dump(),
         )
 
@@ -43,7 +43,7 @@ class TestQuiz:
             {"dummy": create_quiz(self.my_instructor["dummy"].classrooms[0])[0]}
         )
         response = service_v2_authenticated_client(self.my_instructor["dummy"]).post(
-            f"/api/v1/quiz/create/?classroom_id={self.my_instructor['dummy'].classrooms[0]}",
+            f"/quiz/create/?classroom_id={self.my_instructor['dummy'].classrooms[0]}",
             json=self.my_quiz["dummy"].model_dump(exclude={"created_at", "updated_at"}),
         )
         assert response.status_code == 201
@@ -52,14 +52,14 @@ class TestQuiz:
         self, service_v2_authenticated_client: Callable[[User], TestClient]
     ):
         response = service_v2_authenticated_client(self.my_instructor["dummy"]).get(
-            f"/api/v1/quiz/find/?classroom_id={self.my_classroom['dummy'].id}&quiz_id={self.my_quiz['dummy'].id}"
+            f"/quiz/find/?classroom_id={self.my_classroom['dummy'].id}&quiz_id={self.my_quiz['dummy'].id}"
         )
         assert response.status_code == 200
         assert "questions" not in response.json().keys()
 
     def test_update_quiz(self, service_v2_client: TestClient):
         response = service_v2_client.put(
-            f"/api/v1/quiz/update/?classroom_id={self.my_classroom['dummy'].id}&quiz_id={self.my_quiz['dummy'].id}",
+            f"/quiz/update/?classroom_id={self.my_classroom['dummy'].id}&quiz_id={self.my_quiz['dummy'].id}",
             json={
                 "name": "quiz ni bading",
                 "description": "chupa",
@@ -72,7 +72,7 @@ class TestQuiz:
         self, service_v2_authenticated_client: Callable[[User], TestClient]
     ):
         response = service_v2_authenticated_client(self.my_instructor["dummy"]).delete(
-            f"/api/v1/quiz/delete/?id={self.my_quiz['dummy'].id}"
+            f"/quiz/delete/?id={self.my_quiz['dummy'].id}"
         )
         assert response.status_code == 204
         assert response.text == "Quiz deleted"

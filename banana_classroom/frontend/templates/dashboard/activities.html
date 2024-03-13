@@ -2,8 +2,31 @@
 {% block page %}
     <section class="space-y-2">
         <span class="text-xl font-bold">Activities</span>
+        {% if classrooms %}
         <ul class="space-y-2">
-            {% for x in range(5) %}
+            {% for classroom in classrooms %}
+            <li class="card border">
+                <div class="card-body card-compact p-6">
+                <div class="flex gap-5">
+                    <div class="avatar placeholder">
+                        <div class="bg-neutral text-neutral-content rounded-full w-12">
+                            <span>C</span>
+                        </div>
+                    </div> 
+                    <div>
+                        <a class="text-xl font-bold" href="/dashboard/classroom/find/?id={{classroom['id']}}">{{classroom['name']}}</a>
+                        <p>{{classroom['id']}}</p>
+                    </div>
+                </div>
+                <p>{{classroom['description']}}</p>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% if quizzes %}
+        <ul class="space-y-2">
+            {% for quiz in quizzes %}
             <li class="card border">
                 <div class="card-body card-compact p-6">
                 <div class="flex gap-5">
@@ -13,14 +36,18 @@
                         </div>
                     </div> 
                     <div>
-                        <span>Title of the quiz</span>
-                        <p>Classroom name</p>
+                        <span>{{quiz['name']}}</span>
+                        <p>{{quiz['id']}}</p>
                     </div>
                 </div>
-                <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Voluptatibus rem distinctio, maiores culpa unde voluptate officia esse harum veritatis odio tenetur nesciunt voluptates dolore ducimus sapiente consequatur accusantium doloremque qui?</p>
+                <p>{{quiz['description']}}</p>
                 </div>
             </li>
             {% endfor %}
         </ul>
+        {% endif %}
+        {% if not classrooms and not quizzes %}
+        <h1>You have no activities</h1>
+        {% endif %}
     </section>
 {% endblock %}

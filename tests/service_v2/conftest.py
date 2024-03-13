@@ -1,6 +1,5 @@
 from typing import Callable
 import pytest
-from banana_classroom.app_v2 import app
 from starlette.testclient import TestClient
 from faker import Faker
 from datetime import datetime
@@ -13,21 +12,29 @@ from banana_classroom.database.NOSQL.banana_classroom import (
 )
 import random
 import os
+from banana_classroom.service_v2.app import api_service
+from banana_classroom.frontend.app import frontend_app
 
 
 @pytest.fixture
 def service_v2_client() -> TestClient:
-    return TestClient(app)
+    return TestClient(api_service)
+
+
+@pytest.fixture
+def service_v2_frontend() -> TestClient:  # type: ignore
+    with TestClient(frontend_app) as client:
+        yield client  # type: ignore
 
 
 @pytest.fixture()
 def service_v2_authenticated_client() -> Callable[[User], TestClient]:
 
     def decorator(user: User) -> TestClient:
-        client = TestClient(app)
+        client = TestClient(api_service)
         # login the user
         response = client.post(
-            "/api/v1/security/token",
+            "/security/token/",
             json={"email": user.email, "password": user.password},
         )
         assert response.status_code == 200
@@ -176,7 +183,7 @@ def create_authenticated_user(
     def create(role: str) -> User:
         user = create_user(role)[0]
         response = service_v2_client.post(
-            f"/api/v1/user/create?user_type={user.role}",
+            f"/user/create/?user_type={user.role}",
             json={
                 **user.model_dump(exclude={"created_at", "updated_at"}),
                 "confirm_password": user.password,

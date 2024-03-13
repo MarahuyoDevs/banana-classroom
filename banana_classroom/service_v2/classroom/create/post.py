@@ -19,6 +19,7 @@ class ClassroomModel(BaseModel):
 
 @requires(["authenticated", "instructor"])
 async def endpoint(request: Request):
+
     time = str(datetime.now())
     request_body = ClassroomModel(**await request.json())
     classroom = Classroom(
@@ -30,10 +31,10 @@ async def endpoint(request: Request):
     )
 
     request.user.update(A.classrooms.append(classroom.id))
-
     classroom.save()
+
     return PlainTextResponse(
         "Classroom created successfully",
         status_code=201,
-        headers={"hx-redirect": f"/dashboard/classroom/{classroom.id}"},
+        headers={"hx-redirect": f"/dashboard/classroom/find/?id={classroom.id}"},
     )
