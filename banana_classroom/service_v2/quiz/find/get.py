@@ -11,10 +11,9 @@ from starlette.requests import Request
 
 @requires(["authenticated"])
 async def endpoint(request: Request):
-    quiz = Quiz.safe_get(request.query_params.get("quiz_id", ""))
+    quiz = Quiz.safe_get(request.query_params.get("id", ""))
     if not quiz:
         return PlainTextResponse(
             "Quiz not found", status_code=status.HTTP_404_NOT_FOUND
         )
-
-    return JSONResponse(quiz.model_dump(exclude={"questions"}))
+    return JSONResponse(quiz.model_dump())

@@ -48,9 +48,6 @@ async def endpoint(request: Request):
             continue
         quizzes.append(response.json())
 
-    print(classroom_body)
-    print(students)
-
     return request.state.template.TemplateResponse(
         request,
         "dashboard/classroom.html",

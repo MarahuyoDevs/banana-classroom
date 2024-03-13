@@ -20,8 +20,6 @@ async def endpoint(request: Request):
             headers={"Authorization": f"Basic {request.cookies.get('session')}"},
         )
         classrooms.append(room.json())
-    print(user["classrooms"])
-    print(classrooms)
 
     return request.state.template.TemplateResponse(
         request,

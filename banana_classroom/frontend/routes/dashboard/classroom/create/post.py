@@ -16,7 +16,6 @@ async def endpoint(request: Request):
         json=body,
         headers={"Authorization": f"Basic {request.cookies.get('session')}"},
     )
-    print(response.headers)
     return PlainTextResponse(
         "Classroom Created",
         status_code=201,

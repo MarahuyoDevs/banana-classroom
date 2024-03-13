@@ -10,15 +10,8 @@ async def endpoint(request: Request):
 
     body = await request.json()
 
-    response = request.state.backend.post(
-        f"/classroom/join/?class_id={body.get('class_id')}",
-        headers={"Authorization": f"Basic {request.cookies.get('session')}"},
-    )
-
     return PlainTextResponse(
-        "Joined Classroom",
+        "Joined Quiz",
         status_code=201,
-        headers={
-            "hx-redirect": f"/dashboard/classroom/find/?id={body.get('class_id')}"
-        },
+        headers={"hx-redirect": f"/dashboard/quiz/find/?id={body.get('quiz_id')}"},
     )

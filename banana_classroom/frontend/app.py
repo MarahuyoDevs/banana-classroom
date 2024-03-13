@@ -9,6 +9,7 @@ from starlette.testclient import TestClient
 from banana_classroom.service_v2.app import api_service
 from banana_classroom.database.NOSQL import banana_classroom
 from starlette.applications import Starlette
+
 import boto3
 
 
@@ -20,6 +21,7 @@ class State(TypedDict):
 
 @asynccontextmanager
 async def lifespan(app: Starlette) -> AsyncIterator[State]:
+
     templates = Jinja2Templates(os.path.dirname(__file__) + "/templates/")
     dynamodb = boto3.resource(
         "dynamodb",
@@ -35,6 +37,9 @@ async def lifespan(app: Starlette) -> AsyncIterator[State]:
 
     if "quizzes" not in dynamodb.meta.client.list_tables()["TableNames"]:
         banana_classroom.Quiz.create_table()
+
+    if "quizzesresult" not in dynamodb.meta.client.list_tables()["TableNames"]:
+        banana_classroom.QuizResult.create_table()
 
     try:
         with TestClient(api_service) as client:

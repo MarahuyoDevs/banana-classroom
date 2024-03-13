@@ -1,18 +1,19 @@
 from pypox.processing.base import processor
 from pypox._types import QueryStr, BodyDict
-from starlette.responses import PlainTextResponse
+from starlette.responses import JSONResponse
 from starlette.requests import Request
 from starlette import status
 from starlette.authentication import requires
 from datetime import datetime
 from banana_classroom.database.NOSQL.banana_classroom import Quiz, Question, Classroom
 from starlette.exceptions import HTTPException
+from dyntastic import A
 
 
 @requires(["authenticated", "instructor"])
 async def endpoint(request: Request):
 
-    classroom_id = request.query_params.get("classroom_id", "")
+    classroom_id = request.query_params.get("class_id", "")
 
     classroom = Classroom.safe_get(hash_key=classroom_id)
 
@@ -29,8 +30,27 @@ async def endpoint(request: Request):
     body = await request.json()
 
     time = str(datetime.now())
-    quiz = Quiz(**body, created_at=time, updated_at=time)
+    quiz = Quiz(**body, created_at=time, updated_at=time, classroom_id=classroom_id)
     quiz.save()
-    return PlainTextResponse(
-        f"Quiz created successfully", status_code=status.HTTP_201_CREATED
+
+    for index, (q_type, q_text, q_answer) in enumerate(
+        zip(body["type"], body["question-description"], body["question-answer"])
+    ):
+        question = Question(
+            quiz_id=quiz.id,
+            type=q_type,
+            text=q_text,
+            answer=q_answer,
+            index=index + 1,
+            created_at=time,
+            updated_at=time,
+        )
+        quiz.update(A.questions.append(question))
+
+    classroom.update(A.quizzes.append(quiz.id))
+    request.user.update(A.quizzes.append(quiz.id))
+
+    return JSONResponse(
+        {"message": f"Quiz created successfully", "id": quiz.id},
+        status_code=status.HTTP_201_CREATED,
     )

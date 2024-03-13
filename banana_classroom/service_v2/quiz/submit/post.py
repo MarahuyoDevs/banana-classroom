@@ -1,6 +1,6 @@
 from pypox.processing.base import processor
 from pypox._types import BodyDict, QueryStr
-from banana_classroom.database.NOSQL.banana_classroom import Quiz, Question
+from banana_classroom.database.NOSQL import banana_classroom
 from datetime import datetime
 from starlette.responses import PlainTextResponse, JSONResponse
 from starlette import status
@@ -10,54 +10,22 @@ from starlette.authentication import requires
 from starlette.requests import Request
 
 
-class QuizResult(BaseModel):
-    user_answer: str
-    correct_answer: str
-    score: int
-
-
-@requires(["authenticated", "student"])
+@requires(["authenticated"])
 async def endpoint(request: Request):
 
-    body: dict = await request.json()
-    quiz_id: str = request.query_params.get("quiz_id", "")
+    body = await request.json()
 
-    db_quiz = Quiz.safe_get(quiz_id)
+    quiz_result = banana_classroom.QuizResult(
+        quiz_id=body["quiz"]["id"],
+        user_id=body["user"]["id"],
+        answers=body["answers"],
+        score=sum([x[-1] for x in body["answers"].values() if x[-1] is True]),
+    )
+    quiz_result.save()
 
-    if not db_quiz:
-        return PlainTextResponse("Quiz not found", status.HTTP_404_NOT_FOUND)
-
-    # answer must match the questions
-    if len(body["questions"]) != len(db_quiz.questions):
-        return PlainTextResponse(
-            "Invalid number of answers", status.HTTP_400_BAD_REQUEST
-        )
-
-    quiz_results = []
-
-    for user_question, db_question in zip(
-        [Question(x) for x in body["questions"]], db_quiz.questions
-    ):
-        if db_question.answer.lower() != user_question.answer.lower():
-            quiz_results.append(
-                QuizResult(
-                    user_answer=user_question.answer,
-                    correct_answer=db_question.answer,
-                    score=0,
-                )
-            )
-        else:
-            quiz_results.append(
-                QuizResult(
-                    user_answer=user_question.answer,
-                    correct_answer=db_question.answer,
-                    score=1,
-                )
-            )
+    request.user.update(A.quizzes_result.append(quiz_result.id))
 
     return JSONResponse(
-        {
-            "score": sum([x for x in quiz_results if x.score]),
-            "results": [x.model_dump() for x in quiz_results],
-        }
+        {"message": "Successfully submitted", "id": quiz_result.id},
+        status_code=status.HTTP_201_CREATED,
     )

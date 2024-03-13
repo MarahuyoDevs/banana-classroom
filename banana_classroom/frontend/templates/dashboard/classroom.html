@@ -33,8 +33,9 @@
             <h1 class="text-2xl font-bold">{{classroom.name}}</h1>
             <p class="text-lg font-light">{{classroom.description}}</p>
             <div class="overflow-x-auto">
-            <div role="tablist" class="tabs tabs-bordered w-full">
-                <input type="radio" name="my_tabs_1" role="tab" class="tab w-full" aria-label="Students" />
+            <div role="tablist" class="tabs tabs-lifted">
+                <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Students" checked />
+                <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
                 {% if students %}
                 <table role="tabpanel" class="tab-content table">
                     <!-- head -->
@@ -49,7 +50,7 @@
                     <!-- row 1 -->
                     {% for student in students %}
                     <tr>
-                        <th>{{student['id']}}</th>
+                        <th class="cursor-pointer" onclick="copyText(this)">{{student['id']}}>{{student['id']}}</th>
                         <td>{{student['name']}}</td>
                         <td>{{student['email']}}</td>
                     </tr>
@@ -57,42 +58,62 @@
                     </tbody>
                 </table>
                 {% endif %}
-                <input type="radio" name="my_tabs_1" role="tab" class="tab w-full" aria-label="Quizzes" />
-                {% if quizzes %}
-                <table role="tabpanel" class="tab-content table">
-                    <!-- head -->
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <!-- row 1 -->
-                    <tr>
-                        <th>1</th>
-                        <td>Cy Ganderton</td>
-                        <td>Quality Control Specialist</td>
-                    </tr>
-                    <!-- row 2 -->
-                    <tr>
-                        <th>2</th>
-                        <td>Hart Hagerty</td>
-                        <td>Desktop Support Technician</td>
-                    </tr>
-                    <!-- row 3 -->
-                    <tr>
-                        <th>3</th>
-                        <td>Brice Swyre</td>
-                        <td>Tax Accountant</td>
-                    </tr>
-                    </tbody>
-                </table>
+                </div>
+                <input type="radio" name="my_tabs_2" role="tab" class="tab" aria-label="Quizzes" />
+                <div role="tabpanel" class="tab-content bg-base-100 border-base-300 rounded-box p-6">
+                    {% if quizzes %}
+                    <table role="tabpanel" class="tab-content table">
+                        <!-- head -->
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for quiz in quizzes %}
+                        <tr>
+                            <th class="cursor-pointer" onclick="copyText(this)">{{quiz['id']}}</th>
+                            <td>{{quiz['name']}}</td>
+                            <td>{{quiz['description']}}</td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 {% endif %}
-            </div>
+                </div>
+                </div>
             </div>
         </div>
         {% endif %}
     </section>
+    <script>
+        function copyText(element) {
+            // Select the text content
+            const text = element.textContent;
+
+            // Create a temporary element to stage the text
+            const tempElement = document.createElement("textarea");
+            tempElement.value = text;
+            document.body.appendChild(tempElement);
+
+            // Select the text within the temporary element
+            tempElement.select();
+
+            // Copy the selected text to clipboard
+            try {
+                const successful = navigator.clipboard.writeText(text);
+                const msg = successful ? "Text copied to clipboard!" : "Failed to copy text.";
+                console.log(msg); // You can replace this with an alert or notification
+            } catch (err) {
+                console.error("Failed to copy text:", err);
+            }
+
+            // Remove the temporary element
+            document.body.removeChild(tempElement);
+            }
+
+            // Add the listener to an element (replace 'targetElementId' with your actual element ID)
+    </script>
 {% endblock %}

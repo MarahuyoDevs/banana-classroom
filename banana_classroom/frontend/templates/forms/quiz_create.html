@@ -1,6 +1,6 @@
 {% extends 'dashboard/template.html' %}
 {% block page %}
-    <form x-data="{questions = 0}" class="flex flex-col gap-5" hx-post="/dashboard/quiz/create" hx-ext="json-enc">
+    <form x-data="{questions = 0}" class="flex flex-col gap-5" hx-post="/dashboard/quiz/create?class_id={{request.query_params['class_id']}}" hx-ext="json-enc">
         <label class="flex flex-col gap-5" for="">
             <span class="text-xl font-bold">Quiz Title</span>
             <input name="name" class="input input-block input-bordered" placeholder="Enter Title" required type="text" name="" id="">
