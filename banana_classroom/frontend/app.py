@@ -9,8 +9,11 @@ from starlette.testclient import TestClient
 from banana_classroom.service_v2.app import api_service
 from banana_classroom.database.NOSQL import banana_classroom
 from starlette.applications import Starlette
+from dotenv import load_dotenv
 
 import boto3
+
+load_dotenv(override=True)
 
 
 class State(TypedDict):
@@ -23,11 +26,15 @@ class State(TypedDict):
 async def lifespan(app: Starlette) -> AsyncIterator[State]:
 
     templates = Jinja2Templates(os.path.dirname(__file__) + "/templates/")
-    dynamodb = boto3.resource(
-        "dynamodb",
-        region_name=os.environ["DYNTASTIC_REGION"],
-        endpoint_url=os.environ["DYNTASTIC_HOST"],
-    )
+
+    if os.getenv("MODE", "") == "development":
+        dynamodb = boto3.resource(
+            "dynamodb",
+            region_name=os.environ["DYNTASTIC_REGION"],
+            endpoint_url=os.environ["DYNTASTIC_HOST"],
+        )
+    else:
+        dynamodb = boto3.resource("dynamodb")
 
     if "users" not in dynamodb.meta.client.list_tables()["TableNames"]:
         banana_classroom.User.create_table()
