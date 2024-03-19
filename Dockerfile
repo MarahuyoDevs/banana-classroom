@@ -14,10 +14,10 @@ WORKDIR /app
 # Copy the current directory contents into the container at /app
 COPY pyproject.toml poetry.lock ./
 
-RUN poetry install --without dev --no-root && rm -rf $POETRY_CACHE_DIR
+RUN poetry install --no-root && rm -rf $POETRY_CACHE_DIR
 
 COPY . /app
 
 EXPOSE 5000
 
-CMD [ "poetry","run","granian", "--interface", "asgi", "banana_classroom.frontend.app:frontend_app", "--port", "5000", "--host", "0.0.0.0"]
+CMD [ "poetry","run","uvicorn","banana_classroom.frontend.app:frontend_app", "--port", "5000", "--host", "0.0.0.0"]
