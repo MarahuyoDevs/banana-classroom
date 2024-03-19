@@ -34,7 +34,7 @@ async def lifespan(app: Starlette) -> AsyncIterator[State]:
             endpoint_url=os.environ["DYNTASTIC_HOST"],
         )
     else:
-        dynamodb = boto3.resource("dynamodb")
+        dynamodb = boto3.resource("dynamodb", region_name="ap-southeast-1")
 
     if "users" not in dynamodb.meta.client.list_tables()["TableNames"]:
         banana_classroom.User.create_table()
