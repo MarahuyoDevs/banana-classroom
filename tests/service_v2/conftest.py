@@ -13,18 +13,11 @@ from banana_classroom.database.NOSQL.banana_classroom import (
 import random
 import os
 from banana_classroom.service_v2.app import api_service
-from banana_classroom.frontend.app import frontend_app
 
 
 @pytest.fixture
 def service_v2_client() -> TestClient:
     return TestClient(api_service)
-
-
-@pytest.fixture
-def service_v2_frontend() -> TestClient:  # type: ignore
-    with TestClient(frontend_app) as client:
-        yield client  # type: ignore
 
 
 @pytest.fixture()
