@@ -11,9 +11,9 @@ class User(Dyntastic):
     __hash_key__ = "email"
 
     id: str = Field(default_factory=lambda: str(uuid4()))
-    name: str
-    email: str
-    password: str  # hashed
+    name: str = Field(validation_alias="input-name")
+    email: str = Field(validation_alias="input-email")
+    password: str = Field(validation_alias="input-password")
     role: str  # student, teacher, admin
     classrooms: list[str] = []  # classroom_id
     quizzes: list[str] = []  # quiz_id

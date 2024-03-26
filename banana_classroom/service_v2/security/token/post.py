@@ -12,11 +12,11 @@ from starlette.requests import Request
 @processor()
 async def endpoint(request: Request):
     body = await request.json()
-    user = User.safe_get(hash_key=body["email"])
+    user = User.safe_get(hash_key=body["input-email"])
     user_type = request.query_params.get("user_type")
     if not user:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
-    if not bcrypt.verify(body["password"], user.password):
+    if not bcrypt.verify(body["input-password"], user.password):
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid email or password")
     if user.role != user_type:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Invalid role")

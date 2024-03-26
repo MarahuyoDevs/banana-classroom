@@ -35,7 +35,7 @@ def service_v2_authenticated_client(service_v2_client) -> Callable[[User], TestC
         # login the user
         response = client.post(
             f"/security/token/?user_type={user.role}",
-            json={"email": user.email, "password": user.password},
+            json={"input-email": user.email, "input-password": user.password},
         )
         assert response.status_code == 200
         client.headers.update(
@@ -185,8 +185,11 @@ def create_authenticated_user(
         response = service_v2_client.post(
             f"/user/create/?user_type={user.role}",
             json={
-                **user.model_dump(exclude={"created_at", "updated_at"}),
-                "confirm_password": user.password,
+                **{
+                    "input-password": user.password,
+                    **user.model_dump(exclude={"created_at", "updated_at"}),
+                },
+                "input-confirm-password": user.password,
             },
         )
         assert response.status_code == 201

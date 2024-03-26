@@ -25,7 +25,7 @@ async def endpoint(body: BodyDict, user_type: QueryStr):
         None
     """
 
-    if body["password"] != body["confirm_password"]:
+    if body["input-password"] != body["input-confirm-password"]:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Passwords do not match")
     if user_type not in ["student", "instructor"]:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid user type")

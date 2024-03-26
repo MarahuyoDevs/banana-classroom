@@ -33,9 +33,16 @@ async def endpoint(request: Request):
     quiz = Quiz(**body, created_at=time, updated_at=time, classroom_id=classroom_id)
     quiz.save()
 
-    for index, (q_type, q_text, q_answer) in enumerate(
-        zip(body["type"], body["question-description"], body["question-answer"])
-    ):
+    quiz_questions = [
+        (q.get("text", ""), q.get("option", []), q.get("answer", ""))
+        for q in body["questions"]
+    ]
+
+    for index, (q_text, q_option, q_answer) in enumerate(quiz_questions):
+        if len(q_option) > 1:
+            q_type = "multiple_choice"
+        else:
+            q_type = "true_false"
         question = Question(
             quiz_id=quiz.id,
             type=q_type,

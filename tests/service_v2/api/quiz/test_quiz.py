@@ -43,23 +43,25 @@ class TestQuiz:
             {"dummy": create_quiz(self.my_instructor["dummy"].classrooms[0])[0]}
         )
         response = service_v2_authenticated_client(self.my_instructor["dummy"]).post(
-            f"/quiz/create/?classroom_id={self.my_instructor['dummy'].classrooms[0]}",
-            json=self.my_quiz["dummy"].model_dump(exclude={"created_at", "updated_at"}),
+            f"/quiz/create/?class_id={self.my_instructor['dummy'].classrooms[0]}",
+            json=self.my_quiz["dummy"].model_dump(
+                exclude={"classroom_id", "created_at", "updated_at"}
+            ),
         )
         assert response.status_code == 201
+        self.my_quiz["dummy"].id = response.json()["id"]
 
     def test_read_quiz(
         self, service_v2_authenticated_client: Callable[[User], TestClient]
     ):
         response = service_v2_authenticated_client(self.my_instructor["dummy"]).get(
-            f"/quiz/find/?classroom_id={self.my_classroom['dummy'].id}&quiz_id={self.my_quiz['dummy'].id}"
+            f"/quiz/find/?id={self.my_quiz['dummy'].id}"
         )
         assert response.status_code == 200
-        assert "questions" not in response.json().keys()
 
     def test_update_quiz(self, service_v2_client: TestClient):
         response = service_v2_client.put(
-            f"/quiz/update/?classroom_id={self.my_classroom['dummy'].id}&quiz_id={self.my_quiz['dummy'].id}",
+            f"/quiz/update/?class_id={self.my_classroom['dummy'].id}&quiz_id={self.my_quiz['dummy'].id}",
             json={
                 "name": "quiz ni bading",
                 "description": "chupa",

@@ -15,8 +15,11 @@ class TestUser:
         response = service_v2_client.post(
             f"/user/create?user_type={user.role}",
             json={
-                **user.model_dump(exclude={"created_at", "updated_at"}),
-                "confirm_password": user.password,
+                **{
+                    "input-password": user.password,
+                    **user.model_dump(exclude={"created_at", "updated_at"}),
+                },
+                "input-confirm-password": user.password,
             },
         )
         assert response.status_code == 201
