@@ -42,7 +42,7 @@ async def endpoint(request: Request):
         if len(q_option) > 1:
             q_type = "multiple_choice"
         else:
-            q_type = "true_false"
+            q_type = "identification"
         question = Question(
             quiz_id=quiz.id,
             type=q_type,
