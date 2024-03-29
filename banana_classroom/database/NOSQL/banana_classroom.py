@@ -40,14 +40,14 @@ class Classroom(Dyntastic):
 class Question(BaseModel):
 
     id: str = Field(default_factory=lambda: str(uuid4()))
-    quiz_id: str
+    quiz_id: str = ""
     type: str
     text: str
     index: int
     options: list[str] = []
     answer: str
-    created_at: str
-    updated_at: str
+    created_at: str = Field(default_factory=lambda: str(datetime.now()))
+    updated_at: str = Field(default_factory=lambda: str(datetime.now()))
 
 
 class Quiz(Dyntastic):
