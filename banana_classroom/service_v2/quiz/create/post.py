@@ -38,22 +38,6 @@ async def endpoint(request: Request):
         for q in body["questions"]
     ]
 
-    for index, (q_text, q_option, q_answer) in enumerate(quiz_questions):
-        if len(q_option) > 1:
-            q_type = "multiple_choice"
-        else:
-            q_type = "identification"
-        question = Question(
-            quiz_id=quiz.id,
-            type=q_type,
-            text=q_text,
-            answer=q_answer,
-            index=index + 1,
-            created_at=time,
-            updated_at=time,
-        )
-        quiz.update(A.questions.append(question))
-
     classroom.update(A.quizzes.append(quiz.id))
     request.user.update(A.quizzes.append(quiz.id))
 
