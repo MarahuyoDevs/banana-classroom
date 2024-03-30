@@ -41,7 +41,7 @@ class Question(BaseModel):
 
     id: str = Field(default_factory=lambda: str(uuid4()))
     quiz_id: str
-    type: str
+    type: str 
     text: str
     index: int
     options: list[str] = []

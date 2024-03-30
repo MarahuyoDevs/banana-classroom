@@ -8,7 +8,6 @@ from starlette.authentication import (
     AuthenticationBackend,
     AuthenticationError,
 )
-
 from banana_classroom.database.NOSQL.banana_classroom import User
 from base64 import b64decode
 
