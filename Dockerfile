@@ -20,4 +20,4 @@ COPY . /app
 
 EXPOSE 5000
 
-CMD [ "poetry","run","uvicorn","banana_classroom.service_v2.app:api_service", "--port", "5000", "--host", "0.0.0.0","--ssl-keyfile","key.pem","--ssl-certfile","cert.pem"]
+CMD [ "poetry","run","uvicorn","banana_classroom.service_v2.app:api_service", "--port", "5000", "--host", "0.0.0.0"]
