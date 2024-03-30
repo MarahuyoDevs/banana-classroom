@@ -40,13 +40,7 @@ class Classroom(Dyntastic):
 class Question(BaseModel):
 
     id: str = Field(default_factory=lambda: str(uuid4()))
-<<<<<<< HEAD
-    quiz_id: str
-    type: str 
-=======
-    quiz_id: str = ""
     type: str
->>>>>>> origin/master
     text: str
     index: int
     options: list[str] = []
@@ -69,13 +63,19 @@ class Quiz(Dyntastic):
     updated_at: str = Field(default_factory=lambda: str(datetime.now()))
 
 
+class QuizAnswer(BaseModel):
+    index: int
+    answer: str
+    correctedAnswer: str
+
+
 class QuizResult(Dyntastic):
     __table_name__ = "quizzesresult"
     __hash_key__ = "id"
     id: str = Field(default_factory=lambda: str(uuid4()))
-    user_id: str
+    user_email: str
     quiz_id: str
     score: int
-    answers: dict[str, tuple[str, str, str, bool]]
+    answers: list[QuizAnswer]
     created_at: str = Field(default_factory=lambda: str(datetime.now()))
     updated_at: str = Field(default_factory=lambda: str(datetime.now()))

@@ -8,6 +8,7 @@ from starlette.authentication import (
     AuthenticationBackend,
     AuthenticationError,
 )
+from starlette.middleware.cors import CORSMiddleware
 from banana_classroom.database.NOSQL.banana_classroom import User
 from base64 import b64decode
 
@@ -35,5 +36,14 @@ class BasicAuthBackend(AuthenticationBackend):
 
 api_service = Pypox(
     conventions=[HTTPRouter(os.path.dirname(__file__))],
-    middleware=[Middleware(AuthenticationMiddleware, backend=BasicAuthBackend())],
+    middleware=[
+        Middleware(AuthenticationMiddleware, backend=BasicAuthBackend()),
+        Middleware(
+            CORSMiddleware,
+            allow_origins=["*"],
+            allow_methods=["*"],
+            allow_headers=["*"],
+            allow_credentials=True,
+        ),
+    ],
 )

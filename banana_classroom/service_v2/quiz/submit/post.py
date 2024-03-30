@@ -13,18 +13,18 @@ from starlette.requests import Request
 @requires(["authenticated"])
 async def endpoint(request: Request):
 
-    body = await request.json()
+    quiz_id = request.query_params.get("id", "")
 
+    body = await request.json()
     quiz_result = banana_classroom.QuizResult(
-        quiz_id=body["quiz"]["id"],
-        user_id=body["user"]["id"],
+        quiz_id=quiz_id,
+        user_email=request.user.email,
         answers=body["answers"],
-        score=sum([x[-1] for x in body["answers"].values() if x[-1] is True]),
+        score=body["score"],
     )
     quiz_result.save()
 
     request.user.update(A.quizzes_result.append(quiz_result.id))
-
     return JSONResponse(
         {"message": "Successfully submitted", "id": quiz_result.id},
         status_code=status.HTTP_201_CREATED,

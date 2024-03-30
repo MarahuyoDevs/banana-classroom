@@ -9,6 +9,7 @@ from banana_classroom.database.NOSQL.banana_classroom import (
     Classroom,
     Quiz,
     Question,
+    QuizResult,
 )
 import random
 import os
@@ -106,7 +107,6 @@ def create_question():
         created_at = str(datetime.now())
         updated_at = str(datetime.now())
         question = Question(
-            quiz_id=quiz_id,
             type=random.choice(["multiple_choice", "true_false"]),
             text=fake.paragraph(),
             answer=fake.text(),
@@ -162,6 +162,9 @@ def execute_before_any_test():
 
     if "quizzes" not in dynamodb.meta.client.list_tables()["TableNames"]:
         Quiz.create_table()
+
+    if "quizzes_results" not in dynamodb.meta.client.list_tables()["TableNames"]:
+        QuizResult.create_table()
 
 
 @pytest.fixture
