@@ -33,11 +33,6 @@ async def endpoint(request: Request):
     quiz = Quiz(**body, created_at=time, updated_at=time, classroom_id=classroom_id)
     quiz.save()
 
-    quiz_questions = [
-        (q.get("text", ""), q.get("option", []), q.get("answer", ""))
-        for q in body["questions"]
-    ]
-
     classroom.update(A.quizzes.append(quiz.id))
     request.user.update(A.quizzes.append(quiz.id))
 
